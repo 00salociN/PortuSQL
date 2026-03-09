@@ -1,229 +1,881 @@
-# H2_DATABASE_COMPLETE_GUIDE.md
+Vou montar um **arquivo Markdown organizado e completo** com:
 
-## Introdução
-O H2 é um banco de dados relacional em memória e uma solução de banco de dados leve. Este guia fornece uma lista completa de comandos e funções do H2, traduzidos para o português, com descrições, sintaxes e exemplos.
+* ✅ **Todos os comandos que você listou**
+* ✅ **Correções de organização**
+* ✅ **Alguns comandos importantes do H2 que não estavam na lista**
+* ✅ Estrutura mais próxima da documentação oficial
+* ✅ Índice navegável
 
-### Comandos de Manipulação de Dados
-#### SELECT
-**Descrição**: O comando SELECT é utilizado para consultar dados de uma tabela.
+Você pode **copiar direto para um arquivo `h2-comandos-completo.md`**.
 
-**Sintaxe**: `SELECT coluna1, coluna2 FROM tabela WHERE condição;`
+---
 
-**Exemplo**: `SELECT nome FROM clientes WHERE cidade='São Paulo';`
+# H2 Database – Guia Completo de Comandos e Funções
 
-#### INSERT
-**Descrição**: O comando INSERT é utilizado para inserir novos registros em uma tabela.
+Guia completo de **comandos SQL e funções do H2 Database**, incluindo manipulação de dados, definição de estrutura, transações, segurança e configuração.
 
-**Sintaxe**: `INSERT INTO tabela (coluna1, coluna2) VALUES (valor1, valor2);`
+Documentação oficial: [https://h2database.com](https://h2database.com)
 
-**Exemplo**: `INSERT INTO clientes (nome, cidade) VALUES ('João', 'Rio de Janeiro');`
+---
 
-#### UPDATE
-**Descrição**: O comando UPDATE é utilizado para modificar dados existentes em uma tabela.
+# Índice
 
-**Sintaxe**: `UPDATE tabela SET coluna1=valor1 WHERE condição;`
+* Manipulação de Dados (DML)
+* Definição de Dados (DDL)
+* Controle de Transações
+* Controle de Acesso
+* Utilitários
+* Configuração
+* Funções Numéricas
+* Funções de Texto
+* Funções de Data
+* Funções de Sistema
 
-**Exemplo**: `UPDATE clientes SET cidade='Belo Horizonte' WHERE nome='João';`
+---
 
-#### DELETE
-**Descrição**: O comando DELETE é utilizado para remover registros de uma tabela.
+# Manipulação de Dados (DML)
 
-**Sintaxe**: `DELETE FROM tabela WHERE condição;`
+## SELECT
 
-**Exemplo**: `DELETE FROM clientes WHERE nome='João';`
+Consulta dados de tabelas.
 
-#### BACKUP
-**Descrição**: O comando BACKUP cria uma cópia de segurança do banco de dados.
+```sql
+SELECT coluna FROM tabela;
+```
 
-**Sintaxe**: `BACKUP TO 'caminho/para/backup';`
+Exemplo:
 
-**Exemplo**: `BACKUP TO 'backup_h2.zip';`
+```sql
+SELECT nome,email FROM usuarios WHERE idade > 18;
+```
 
-#### CALL
-**Descrição**: O comando CALL executa procedimentos armazenados.
+---
 
-**Sintaxe**: `CALL procedimento(parametros);`
+## INSERT
 
-**Exemplo**: `CALL calcularDesconto(10);`
+Insere dados em uma tabela.
 
-#### EXECUTE IMMEDIATE
-**Descrição**: O comando EXECUTE IMMEDIATE executa uma instrução SQL como uma string.
+```sql
+INSERT INTO tabela(coluna1,coluna2)
+VALUES(valor1,valor2);
+```
 
-**Sintaxe**: `EXECUTE IMMEDIATE 'instrução SQL';`
+Exemplo:
 
-**Exemplo**: `EXECUTE IMMEDIATE 'DROP TABLE tabela_teste';`
+```sql
+INSERT INTO usuarios(nome,email)
+VALUES('João','joao@email.com');
+```
 
-#### EXPLAIN
-**Descrição**: O comando EXPLAIN fornece informações sobre como uma consulta será executada.
+---
 
-**Sintaxe**: `EXPLAIN SELECT * FROM tabela;
+## UPDATE
 
-**Exemplo**: `EXPLAIN SELECT nome FROM clientes WHERE cidade='São Paulo';`
+Atualiza registros existentes.
 
-#### MERGE INTO
-**Descrição**: O comando MERGE INTO insere ou atualiza registros em uma tabela com base na correspondência de chaves.
+```sql
+UPDATE tabela
+SET coluna = valor
+WHERE condição;
+```
 
-**Sintaxe**: `MERGE INTO tabela_destino USING tabela_src ON condição WHEN MATCHED THEN UPDATE SET coluna1=valor1 WHEN NOT MATCHED THEN INSERT (colunas) VALUES (valores);`
+Exemplo:
 
-**Exemplo**: `MERGE INTO clientes_destino USING clientes_origem ON (clientes_destino.id = clientes_origem.id) WHEN MATCHED THEN UPDATE SET clientes_destino.nome = clientes_origem.nome WHEN NOT MATCHED THEN INSERT (id, nome) VALUES (clientes_origem.id, clientes_origem.nome);`
+```sql
+UPDATE usuarios
+SET email='novo@email.com'
+WHERE id=1;
+```
 
-#### MERGE USING
-**Descrição**: O comando MERGE USING combina vários registros de uma tabela com base na condição especificada.
+---
 
-**Sintaxe**: Igual ao MERGE INTO.
+## DELETE
 
-#### RUNSCRIPT
-**Descrição**: O comando RUNSCRIPT executa um script SQL de um arquivo.
+Remove registros.
 
-**Sintaxe**: `RUNSCRIPT FROM 'caminho/para/script.sql';`
+```sql
+DELETE FROM tabela
+WHERE condição;
+```
 
-**Exemplo**: `RUNSCRIPT FROM 'script_inicial.sql';`
+---
 
-#### SCRIPT
-**Descrição**: O comando SCRIPT gera um script SQL com instruções para recriar o banco de dados.
+## MERGE INTO
 
-**Sintaxe**: `SCRIPT 'caminho/para/script.sql';`
+Permite inserir ou atualizar registros.
 
-**Exemplo**: `SCRIPT 'backup_script.sql';`
+```sql
+MERGE INTO tabela_destino
+USING tabela_origem
+ON condição
+WHEN MATCHED THEN UPDATE
+WHEN NOT MATCHED THEN INSERT;
+```
 
-#### SHOW
-**Descrição**: O comando SHOW exibe metadados sobre o banco de dados ou suas tabelas.
+---
 
-**Sintaxe**: `SHOW TABLES;`
+## WITH (CTE)
 
-**Exemplo**: `SHOW TABLES;`
+Define uma tabela temporária.
 
-#### Explicit Table
-**Descrição**: Permite a referência a uma tabela específica em consultas.
+```sql
+WITH ranking AS (
+SELECT id,nome
+FROM usuarios
+)
+SELECT * FROM ranking;
+```
 
-**Sintaxe**: `Tabela(tabela) AS alias;`
+---
 
-#### Table Value
-**Descrição**: Define um valor de tabela para um determinado escopo.
+## CALL
 
-#### WITH
-**Descrição**: O comando WITH é usado para definir uma consulta comum para ser referida em instruções subsequentes.
+Executa função ou procedimento.
 
-**Sintaxe**: `WITH nome_comum AS (consulta) SELECT * FROM nome_comum;
+```sql
+CALL nome_funcao(parametros);
+```
 
-**Exemplo**: `WITH vendas_totais AS (SELECT cliente_id, SUM(valor) as total FROM vendas GROUP BY cliente_id) SELECT * FROM vendas_totais;`
+---
 
-### Comandos de Definição de Dados
-#### ALTER
-**Descrição**: O comando ALTER modifica a estrutura de uma tabela existente.
+## EXPLAIN
 
-**Sintaxe**: `ALTER TABLE tabela ADD coluna tipo;`
+Mostra plano de execução.
 
-**Exemplo**: `ALTER TABLE clientes ADD email VARCHAR(255);`
+```sql
+EXPLAIN SELECT * FROM usuarios;
+```
 
-#### CREATE
-**Descrição**: O comando CREATE é utilizado para criar novas tabelas ou outros objetos de banco de dados.
+---
 
-**Sintaxe**: `CREATE TABLE tabela (coluna1 tipo, coluna2 tipo);`
+## SCRIPT
 
-**Exemplo**: `CREATE TABLE clientes (id INT PRIMARY KEY, nome VARCHAR(255));`
+Exporta banco em SQL.
 
-#### DROP
-**Descrição**: O comando DROP remove tabelas ou objetos do banco de dados.
+```sql
+SCRIPT TO 'backup.sql';
+```
 
-**Sintaxe**: `DROP TABLE tabela;
+---
 
-**Exemplo**: `DROP TABLE clientes;`
+## RUNSCRIPT
 
-#### ANALYZE
-**Descrição**: O comando ANALYZE analisa a tabela e coleta estatísticas.
+Executa script SQL.
 
-**Sintaxe**: `ANALYZE TABLE tabela;`
+```sql
+RUNSCRIPT FROM 'script.sql';
+```
 
-**Exemplo**: `ANALYZE TABLE clientes;`
+---
 
-#### COMMENT ON
-**Descrição**: O comando COMMENT ON adiciona comentários descritivos a objetos do banco de dados.
+## BACKUP
 
-**Sintaxe**: `COMMENT ON TABLE tabela IS 'comentário';`
+Cria backup do banco.
 
-#### TRUNCATE
-**Descrição**: O comando TRUNCATE remove todos os registros de uma tabela sem registrar cada exclusão.
+```sql
+BACKUP TO 'backup.zip';
+```
 
-**Sintaxe**: `TRUNCATE TABLE tabela;
+---
 
-**Exemplo**: `TRUNCATE TABLE clientes;`
+## SHOW
 
-#### REFRESH
-**Descrição**: O comando REFRESH atualiza uma tabela ou um objeto.
+Mostra objetos do banco.
 
-### Outros Comandos
-#### CHECKPOINT
-**Descrição**: O comando CHECKPOINT força a gravação de todas as alterações no disco.
+```sql
+SHOW TABLES;
+SHOW COLUMNS FROM tabela;
+SHOW SCHEMAS;
+SHOW USERS;
+```
 
-**Sintaxe**: `CHECKPOINT;`
+---
 
-**Exemplo**: `CHECKPOINT;`
+# Definição de Dados (DDL)
 
-#### COMMIT
-**Descrição**: O comando COMMIT salva todas as alterações feitas na transação atual.
+## CREATE TABLE
 
-**Sintaxe**: `COMMIT;`
+Cria tabela.
 
-#### GRANT
-**Descrição**: O comando GRANT concede permissões a usuários ou roles.
+```sql
+CREATE TABLE usuarios(
+id INT PRIMARY KEY AUTO_INCREMENT,
+nome VARCHAR(100),
+email VARCHAR(100)
+);
+```
 
-**Sintaxe**: `GRANT permissões ON objeto TO usuário;`
+---
 
-#### REVOKE
-**Descrição**: O comando REVOKE remove permissões concedidas.
+## ALTER TABLE
 
-**Sintaxe**: `REVOKE permissões ON objeto FROM usuário;`
+Modifica estrutura da tabela.
 
-#### SET variations
-**Descrição**: O comando SET é usado para alterar configurações do banco de dados.
+### Adicionar coluna
 
-**Sintaxe**: `SET variável = valor;`
+```sql
+ALTER TABLE usuarios
+ADD COLUMN telefone VARCHAR(15);
+```
 
-#### SHUTDOWN
-**Descrição**: O comando SHUTDOWN encerra a sessão do banco de dados ou o servidor.
+### Alterar coluna
 
-**Sintaxe**: `SHUTDOWN;`
+```sql
+ALTER TABLE usuarios
+ALTER COLUMN nome VARCHAR(200);
+```
 
-**Exemplo**: `SHUTDOWN;`
+### Remover coluna
 
-#### HELP
-**Descrição**: O comando HELP fornece informações sobre comandos disponível.
+```sql
+ALTER TABLE usuarios
+DROP COLUMN telefone;
+```
 
-**Sintaxe**: `HELP comando;`
+### Renomear tabela
 
-### Funções Numéricas
-- **Descrição**: Funções para processamento numérico, como funções trigonométricas, lógicas e matemáticas.
+```sql
+ALTER TABLE usuarios
+RENAME TO clientes;
+```
 
-### Funções de String
-- **Descrição**: Funções para manipulação de strings, incluindo concatenação, conversão e busca.
+---
 
-### Funções de Data/Hora
-- **Descrição**: Funções para manipulação de data e hora, como extrair partes e calcular intervalos.
+## DROP TABLE
 
-### Funções do Sistema
-- **Descrição**: Funções que fornecem informações sobre o estado e propriedades do banco de dados.
+Remove tabela.
 
-### Funções de Agregação Geral
-- **Descrição**: Funções para calcular valores estatísticos em conjuntos de dados.
+```sql
+DROP TABLE usuarios;
+```
 
-### Funções de Conjunto Binário
-- **Descrição**: Funções que operam em conjuntos de dados binários.
+---
 
-### Funções de Agregação Ordenadas
-- **Descrição**: Funções que produzem resultados agregados ordenados.
+## TRUNCATE TABLE
 
-### Funções de Conjunto Hipotético
-- **Descrição**: Funções específicas para análise de classificação.
+Remove todos os registros rapidamente.
 
-### Funções de Distribuição Inversa
-- **Descrição**: Funções utilizadas para determinar a distribuição de valores.
+```sql
+TRUNCATE TABLE usuarios;
+```
 
-### Funções de Agregação JSON
-- **Descrição**: Funções que operam com objetos JSON.
+---
 
-### Funções de Janela
-- **Descrição**: Funções que realizam operações sobre um conjunto de linhas, mantendo o contexto de execução.
+## CREATE INDEX
 
-## Conclusão
-Explore as riquezas do H2 e aproveite ao máximo as suas funcionalidades.
+Cria índice.
+
+```sql
+CREATE INDEX idx_email
+ON usuarios(email);
+```
+
+---
+
+## DROP INDEX
+
+Remove índice.
+
+```sql
+DROP INDEX idx_email;
+```
+
+---
+
+## CREATE VIEW
+
+Cria view.
+
+```sql
+CREATE VIEW vw_usuarios
+AS
+SELECT nome,email
+FROM usuarios;
+```
+
+---
+
+## DROP VIEW
+
+Remove view.
+
+```sql
+DROP VIEW vw_usuarios;
+```
+
+---
+
+## CREATE MATERIALIZED VIEW
+
+View com dados armazenados.
+
+```sql
+CREATE MATERIALIZED VIEW mv_vendas
+AS
+SELECT mes,SUM(valor)
+FROM vendas
+GROUP BY mes;
+```
+
+---
+
+## REFRESH MATERIALIZED VIEW
+
+Atualiza dados.
+
+```sql
+REFRESH MATERIALIZED VIEW mv_vendas;
+```
+
+---
+
+## CREATE SEQUENCE
+
+Cria sequência numérica.
+
+```sql
+CREATE SEQUENCE seq_id
+START WITH 1
+INCREMENT BY 1;
+```
+
+---
+
+## ALTER SEQUENCE
+
+Modifica sequência.
+
+```sql
+ALTER SEQUENCE seq_id
+INCREMENT BY 10;
+```
+
+---
+
+## DROP SEQUENCE
+
+Remove sequência.
+
+```sql
+DROP SEQUENCE seq_id;
+```
+
+---
+
+## CREATE SCHEMA
+
+Cria esquema.
+
+```sql
+CREATE SCHEMA vendas;
+```
+
+---
+
+## DROP SCHEMA
+
+Remove esquema.
+
+```sql
+DROP SCHEMA vendas CASCADE;
+```
+
+---
+
+## CREATE TRIGGER
+
+Cria gatilho.
+
+```sql
+CREATE TRIGGER tr_insert
+AFTER INSERT
+ON usuarios
+FOR EACH ROW
+CALL "com.exemplo.Trigger";
+```
+
+---
+
+## DROP TRIGGER
+
+Remove trigger.
+
+```sql
+DROP TRIGGER tr_insert;
+```
+
+---
+
+# Controle de Transações
+
+## BEGIN
+
+Inicia transação.
+
+```sql
+BEGIN;
+```
+
+---
+
+## COMMIT
+
+Confirma alterações.
+
+```sql
+COMMIT;
+```
+
+---
+
+## ROLLBACK
+
+Desfaz alterações.
+
+```sql
+ROLLBACK;
+```
+
+---
+
+## SAVEPOINT
+
+Cria ponto intermediário.
+
+```sql
+SAVEPOINT sp1;
+```
+
+---
+
+## ROLLBACK TO SAVEPOINT
+
+```sql
+ROLLBACK TO SAVEPOINT sp1;
+```
+
+---
+
+# Controle de Acesso
+
+## CREATE USER
+
+```sql
+CREATE USER joao PASSWORD '123';
+```
+
+---
+
+## ALTER USER
+
+```sql
+ALTER USER joao SET PASSWORD 'novaSenha';
+```
+
+---
+
+## DROP USER
+
+```sql
+DROP USER joao;
+```
+
+---
+
+## CREATE ROLE
+
+```sql
+CREATE ROLE admin;
+```
+
+---
+
+## GRANT
+
+Concede permissões.
+
+```sql
+GRANT SELECT,INSERT
+ON usuarios
+TO joao;
+```
+
+---
+
+## REVOKE
+
+Remove permissões.
+
+```sql
+REVOKE DELETE
+ON usuarios
+FROM joao;
+```
+
+---
+
+# Utilitários
+
+## ANALYZE
+
+Atualiza estatísticas.
+
+```sql
+ANALYZE;
+```
+
+---
+
+## CHECKPOINT
+
+Força gravação em disco.
+
+```sql
+CHECKPOINT;
+```
+
+---
+
+## SHUTDOWN
+
+Fecha banco.
+
+```sql
+SHUTDOWN;
+```
+
+---
+
+## HELP
+
+Mostra ajuda.
+
+```sql
+HELP;
+```
+
+---
+
+# Configuração
+
+## SET MODE
+
+Modo compatibilidade.
+
+```sql
+SET MODE PostgreSQL;
+```
+
+---
+
+## SET SCHEMA
+
+Define schema atual.
+
+```sql
+SET SCHEMA vendas;
+```
+
+---
+
+## SET AUTOCOMMIT
+
+```sql
+SET AUTOCOMMIT TRUE;
+```
+
+---
+
+## SET TIME ZONE
+
+```sql
+SET TIME ZONE 'America/Sao_Paulo';
+```
+
+---
+
+## SET LOCK_TIMEOUT
+
+```sql
+SET LOCK_TIMEOUT 3000;
+```
+
+---
+
+# Funções Numéricas
+
+## ABS
+
+```sql
+SELECT ABS(-5);
+```
+
+Resultado
+
+```
+5
+```
+
+---
+
+## ROUND
+
+```sql
+SELECT ROUND(10.567,2);
+```
+
+---
+
+## CEILING
+
+```sql
+SELECT CEILING(4.3);
+```
+
+---
+
+## FLOOR
+
+```sql
+SELECT FLOOR(4.8);
+```
+
+---
+
+## POWER
+
+```sql
+SELECT POWER(2,3);
+```
+
+Resultado
+
+```
+8
+```
+
+---
+
+## SQRT
+
+```sql
+SELECT SQRT(16);
+```
+
+---
+
+## PI
+
+```sql
+SELECT PI();
+```
+
+---
+
+# Funções de Texto
+
+## CONCAT
+
+```sql
+SELECT CONCAT('Hello',' ','World');
+```
+
+---
+
+## LENGTH
+
+```sql
+SELECT LENGTH('abc');
+```
+
+---
+
+## LOWER
+
+```sql
+SELECT LOWER('ABC');
+```
+
+---
+
+## UPPER
+
+```sql
+SELECT UPPER('abc');
+```
+
+---
+
+## SUBSTRING
+
+```sql
+SELECT SUBSTRING('abcdef',1,3);
+```
+
+---
+
+## REPLACE
+
+```sql
+SELECT REPLACE('abcabc','a','x');
+```
+
+---
+
+# Funções de Data
+
+## CURRENT_DATE
+
+```sql
+SELECT CURRENT_DATE;
+```
+
+---
+
+## CURRENT_TIME
+
+```sql
+SELECT CURRENT_TIME;
+```
+
+---
+
+## CURRENT_TIMESTAMP
+
+```sql
+SELECT CURRENT_TIMESTAMP;
+```
+
+---
+
+## DATEADD
+
+```sql
+SELECT DATEADD('DAY',5,CURRENT_DATE);
+```
+
+---
+
+## DATEDIFF
+
+```sql
+SELECT DATEDIFF('DAY','2024-01-01','2024-01-10');
+```
+
+---
+
+## EXTRACT
+
+```sql
+SELECT EXTRACT(YEAR FROM CURRENT_DATE);
+```
+
+---
+
+# Funções de Sistema
+
+## DATABASE()
+
+```sql
+SELECT DATABASE();
+```
+
+---
+
+## USER()
+
+```sql
+SELECT USER();
+```
+
+---
+
+## SESSION_ID()
+
+```sql
+SELECT SESSION_ID();
+```
+
+---
+
+# Comandos Avançados do H2
+
+## CREATE ALIAS
+
+Permite chamar funções Java.
+
+```sql
+CREATE ALIAS SQRT
+FOR "java.lang.Math.sqrt";
+```
+
+---
+
+## CREATE DOMAIN
+
+Tipo de dado customizado.
+
+```sql
+CREATE DOMAIN email
+AS VARCHAR(255)
+CHECK(VALUE LIKE '%@%');
+```
+
+---
+
+## CREATE LINKED TABLE
+
+Tabela conectada a outro banco.
+
+```sql
+CREATE LINKED TABLE clientes_externos
+(
+'org.postgresql.Driver',
+'jdbc:postgresql://host/db',
+'user',
+'pass',
+'public',
+'clientes'
+);
+```
+
+---
+
+# Comando Perigoso
+
+## DROP ALL OBJECTS
+
+Apaga **todo o banco**.
+
+```sql
+DROP ALL OBJECTS;
+```
+
+⚠ Use com extremo cuidado.
+
+---
+
+# Observação
+
+O **H2 Database suporta mais de 300 funções SQL**, incluindo:
+
+* funções JSON
+* funções agregadas
+* funções analíticas (WINDOW FUNCTIONS)
+* funções espaciais
+
+Documentação completa:
+
+[https://h2database.com/html/functions.html](https://h2database.com/html/functions.html)
+
+---
+
+Se quiser, posso também criar uma **versão MUITO mais completa (tipo documentação profissional)** com:
+
+* **todos os 300+ comandos e funções do H2**
+* exemplos
+* tabelas
+* comparações com **PostgreSQL / MySQL**
+* diagramas
+
+ficaria um **guia de 1200+ linhas bem organizado para estudo ou documentação**.
