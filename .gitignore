@@ -1,0 +1,12 @@
+# Arquivos compilados
+*.class
+
+# Pastas de build/artefatos
+/bin/
+/build/
+/target/
+
+# Metadados do Eclipse (opcional, remova se quiser versionar)
+.settings/
+.classpath
+.project
