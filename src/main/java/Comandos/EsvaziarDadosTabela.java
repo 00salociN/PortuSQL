@@ -1,12 +1,16 @@
 package Comandos;
 
 /**
+ * @author Nicolas Gabriel Venâncio dos Santos
+ * @version 1.0
+ * 
  * sintaxe: ESVAZIAR TABELA <nome_tabela>
  * este comando remove todas as linhas de uma tabela
  * 
  * implementa a interface {@link Comando}
  */
 public class EsvaziarDadosTabela implements Comando{
+	
 	/**
 	 * a escolha do private final permite que o objeto seja imutável 
 	 * private: impede o acesso de outros arquivos

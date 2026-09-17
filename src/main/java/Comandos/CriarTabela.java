@@ -1,11 +1,14 @@
 package Comandos;
 
 /**
+ * @author Nicolas Gabriel Venâncio dos Santos
+ * @version 1.0
+ * 
  * sintaxe: CRIAR TABELA <nome_tabela> (
- *  <identificador> <tipo_dado> <restricao>,
- *  <identificador> <tipo_dado> <restricao>,
- *  ...
- *  )
+ *  	<identificador> <tipo_dado> <restricao>,
+ *  	<identificador> <tipo_dado> <restricao>,
+ *  	...
+ *  	)
  * este comando criar uma nova tabela
  * 
  * implementa a interface {@link Comando}
@@ -13,7 +16,8 @@ package Comandos;
  */
 import java.util.List;
 
-/**
+
+/** 
  * a escolha do private final permite que o objeto seja imutável 
  * private: impede o acesso de outros arquivos
  * final: impede a reatribuição do valor
@@ -43,7 +47,7 @@ public class CriarTabela implements Comando{
     /**
      * 
      * @return {@link List} contendo objetos {@link DefinicaoColuna} na ordem
-     * que serão renderizados, retornando uma lista
+     * 		que serão renderizados, retornando uma lista
      */
     public List<DefinicaoColuna> getColunas(){
         return colunas;

@@ -1,6 +1,9 @@
 package Comandos;
 
 /**
+ * @author Nicolas Gabriel Venâncio dos Santos
+ * @version 1.0
+ * 
  * sintaxe: inserir <(campo(s))> em <nome_tabela> valores <(valor(es)> // ainda não sei se devo mudar a estrutura
  * este comando insere dados em uma tabela // por enquanto não consegue adicionar mais de 2 valores separados
  * 

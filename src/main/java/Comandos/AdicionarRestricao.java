@@ -1,6 +1,8 @@
 package Comandos;
 
 /**
+ * @author Nicolas Gabriel Venâncio dos Santos
+ * @version 1.0
  * Sintaxe: ALTERAR TABELA <nome_tabela> ADICIONAR RESTRICAO <nome_restricao> <tipo_restricao> (colunas)
  * O comando adiciona uma restricao em um campo que já existe
  * 

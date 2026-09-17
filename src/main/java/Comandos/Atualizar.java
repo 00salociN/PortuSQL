@@ -1,6 +1,9 @@
 package Comandos;
 
 /**
+ * @author Nicolas Gabriel Venâncio dos Santos
+ * @version 1.0
+ * 
  * sintaxe: atualizar <nome_tabela> 'set' <coluna> = <novo_valor> onde <condicao>
  * este comando atualiza dados que já existem em uma tabela
  * 
@@ -44,7 +47,7 @@ public class Atualizar implements Comando{
     /**
      * retorna os campos e valores que serão atualizados
      * @return {@link Map} contendo os pares chave-valor (coluna -> novo valor)
-     * onde a chave é nome da coluna e o valor é o novo valor
+     * 		onde a chave é nome da coluna e o valor é o novo valor
      */
     public Map<String, String> getCampos() {
         return campos;

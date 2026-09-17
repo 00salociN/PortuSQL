@@ -1,6 +1,9 @@
 package Comandos;
 
-
+/**
+ * @author Nicolas Gabriel Venâncio dos Santos
+ * @version 1.0
+ */
 public class DefinicaoColuna {
     private final String nome;
     private final String tipoDado;

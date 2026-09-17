@@ -5,8 +5,10 @@
 package Comandos;
 
 /**
- *
- * @author Etec
+ * @author Nicolas Gabriel Venâncio dos Santos
+ * @version 1.0
+ * 
+ * 
  */
 public class Excluir implements Comando{
     private final String nomeTabela;

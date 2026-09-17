@@ -6,7 +6,10 @@ package Comandos;
 
 /**
  *
- * @author Etec
+ * @author Nicolas Gabriel Venâncio dos Santos
+ * @version 1.0
+ * 
+ * sintaxe: ALTERAR TABELA <nome_tabela> 
  */
 public class RenomearColuna implements Comando{
     private final String tabela;

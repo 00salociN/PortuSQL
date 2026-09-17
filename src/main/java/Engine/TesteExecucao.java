@@ -20,6 +20,7 @@ public class TesteExecucao {
             executar("INSERIR (id, nome, idade) EM alunos VALORES (2, 'Maria', 22)");
             executar("SELECIONAR * DE alunos");
             executar("SELECIONAR nome DE alunos ONDE idade > 20");
+            executar("remover tabela alunos");
         } finally {
             try {
                 Conexao.fecharConexao();

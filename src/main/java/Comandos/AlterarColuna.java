@@ -1,6 +1,9 @@
 package Comandos;
 
 /**
+ * @author Nicolas Gabriel Venâncio dos Santos
+ * @version 1.0
+ * 
  * sintaxe: ALTERAR TABELA <nome_tabela> ALTERAR COLUNA <nome_coluna> <tipo_dado>
  * alterar o tipo de dado de uma coluna existente
  * 

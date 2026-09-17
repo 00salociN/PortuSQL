@@ -1,6 +1,9 @@
 package Comandos;
 
 /** 
+ * @author Nicolas Gabriel Venâncio dos Santos
+ * @version 1.0
+ * 
  * Sintaxe: ALTERAR TABELA <nome_tabela> ADICIONAR COLUNA <nome_coluna> <tipo_dadp>
  * Este comando adiciona uma coluna a uma tabela ja existente
  * 
@@ -8,8 +11,8 @@ package Comandos;
  * utiliza a class {@link DefinicaoColuna} para ter um padrão sobre o que é uma coluna
  */
 public class AdicionarColuna implements Comando{ 
-	/* A
-	 *  escolha do private final permite que o objeto seja imutável 
+	/* 
+	 * a escolha do private final permite que o objeto seja imutável 
 	 * private: impede o acesso de outros arquivos
 	 * final: impede a reatribuição do valor
 	 */
