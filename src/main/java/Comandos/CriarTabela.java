@@ -54,7 +54,7 @@ public class CriarTabela implements Comando{
     }
 
     /**
-     * retorna uma representação no formatdo String do objeto final do CriarTabela
+     * retorna uma representação no formato String do objeto final do CriarTabela
      * formato: "CriarTabela[tabela=" + nomeTabela + ", colunas=" + colunas + "]"
      * @return representação em forma de texto do objeto 
      */

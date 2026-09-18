@@ -35,7 +35,7 @@ public class EsvaziarDadosTabela implements Comando{
      }
      
      /**
-      * retorna uma representação no formatdo String do objeto final do EsvaziarDadosTabela
+      * retorna uma representação no formato String do objeto final do EsvaziarDadosTabela
       * formato: "EsvaziarDadosTabela[tabela=" + tabela + "]"
       * @return representação em forma de texto do objeto
       */

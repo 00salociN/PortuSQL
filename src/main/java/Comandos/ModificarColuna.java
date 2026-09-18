@@ -56,7 +56,7 @@ public class ModificarColuna implements Comando{
     }
 
     /**
-     * retorna uma representação no formatdo String do objeto final do ModificarColuna
+     * retorna uma representação no formato String do objeto final do ModificarColuna
      * formato: "ModificarColuna[tabela=" + tabela + ", coluna=" + nomeColuna + ", novoTipoDado=" + novoTipoDado + "]"
      * @return representação em forma de texto
      */

@@ -56,7 +56,7 @@ public class Selecionar implements Comando{
         return condicao;
     }
 
-    /** retorna uma representação no formatdo String do objeto final do CriarTabela
+    /** retorna uma representação no formato String do objeto final do CriarTabela
     * formato: "Selecionar[tabela=" + tabela + ", colunas=" + colunas + ", condicao=" + condicao + "]"
     *
     * @return representação em forma de texto do objeto

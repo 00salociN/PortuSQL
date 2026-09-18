@@ -59,7 +59,7 @@ public class Inserir implements Comando{
     }
 
     /**
-     * retorna uma representação no formatdo String do objeto final do Inserir
+     * retorna uma representação no formato String do objeto final do Inserir
      * formato: "Inserir[tabela=" + tabela + ", colunas=" + colunas + ", valores=" + valores + "]"
      * @return representação em forma de texto do objeto
      */

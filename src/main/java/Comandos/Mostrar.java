@@ -36,7 +36,7 @@ public class Mostrar implements Comando{
   }
 
   /**
-   * retorna uma representação no formatdo String do objeto final do Mostrar
+   * retorna uma representação no formato String do objeto final do Mostrar
    * formato: "Mostrar[entidade=" + entidade + "]"
    * 
    * @return representação em forma de texto do objeto

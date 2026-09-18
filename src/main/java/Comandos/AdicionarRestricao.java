@@ -55,7 +55,7 @@ public class AdicionarRestricao implements Comando{
     }
     
     /**
-     * retorna uma representação no formatdo String do objeto final do AdicionarRestricao
+     * retorna uma representação no formato String do objeto final do AdicionarRestricao
      * formato: AdicionarRestricao[tabela=" + tabela + ", nomeRestricao" + nomeRestricao + ", definicao" + definicao + "]"
      * 
      * @return representação do AdicionarRestricao em formato de texto

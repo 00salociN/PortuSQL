@@ -62,7 +62,7 @@ public class Atualizar implements Comando{
     }
 
     /**
-     * retorna uma representação no formatdo String do objeto final do Atualizar
+     * retorna uma representação no formato String do objeto final do Atualizar
      * formato: "Atualizar[tabela=" + tabela + ", campos=" + campos + ", condicao=" + condicao + "]"
      * @return representação em forma de texto do objeto 
      */

@@ -22,6 +22,7 @@ public class RenomearTabela implements Comando{
 	* construtor que inicializa os atributos
 	* @param nomeAntigo nome atual da tabela
 	* @param nomeNovo novo nome da tabela
+        */
 	public RenomearTabela (String nomeAntigo, String nomeNovo) {
 		this.nomeAntigo = nomeAntigo;
 		this.nomeNovo = nomeNovo;

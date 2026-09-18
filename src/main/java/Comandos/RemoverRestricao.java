@@ -45,7 +45,7 @@ public class RemoverRestricao implements Comando{
     }
     
     /**
-     * retorna uma representação no formatdo String do objeto final do RemoverRestricao
+     * retorna uma representação no formato String do objeto final do RemoverRestricao
      * formato: "RemoverRestricao[tabela=" + tabela + ", nomeRestricao" + nomeRestricao + "]"
      * 
      * @return representação em forma de texto do objeto

@@ -46,7 +46,7 @@ public class RemoverColuna implements Comando{
     }
 
     /**
-     * retorna uma representação no formatdo String do objeto final do RemoverColuna
+     * retorna uma representação no formato String do objeto final do RemoverColuna
      * formato: "RemoverColuna[tabela=" + tabela + ", coluna=" + nomeColuna + "]"
      * 
      * @return representação em forma de texto do objeto
