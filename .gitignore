@@ -5,7 +5,7 @@
 /bin/
 /build/
 /target/
-/.mvn/
+./.mvn/
 
 # Metadados do Eclipse (opcional, remova se quiser versionar)
 .settings/
