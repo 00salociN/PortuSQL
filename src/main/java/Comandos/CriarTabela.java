@@ -1,18 +1,24 @@
 package Comandos;
 
 /**
+ * comando que cria uma nova tabela
+ * 
+ * <p> sintaxe:
+ * <pre> {@code
+ * CRIAR TABELA <nome_tabela> (
+ *      <identificador> <tipo_dado> <restricao (opicional)> ,
+ *      <identificador> <tipo_dado> <restricao (opicional)> 
+ *      ...
+ * )
+ * } </pre>
+ * 
+ * <p> implementa a interface {@link Comando} e utuliza a classe
+ *      {@link DefinicaoColuna} para ter um padrão sobre o que é uma coluna
+ * 
  * @author Nicolas Gabriel Venâncio dos Santos
  * @version 1.0
- * 
- * sintaxe: CRIAR TABELA <nome_tabela> (
- *  	<identificador> <tipo_dado> <restricao>,
- *  	<identificador> <tipo_dado> <restricao>,
- *  	...
- *  	)
- * este comando criar uma nova tabela
- * 
- * implementa a interface {@link Comando}
- * utiliza a classe {@link DefinicaoColuna} para ter um padrão sobr o que é uma coluna
+ * @see Comando
+ * @see DefinicaoColuna
  */
 import java.util.List;
 

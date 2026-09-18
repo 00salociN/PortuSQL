@@ -1,25 +1,6 @@
 package Comandos;
 
-/**
- * comando que cria uma nova tabela
- * 
- * <p> sintaxe:
- * <pre> {@code
- * CRIAR TABELA <nome_tabela> (
- *      <identificador> <tipo_dado> <restricao> (opicional),
- *      <identificador> <tipo_dado> <restricao> (opicional)
- *      ...
- * )
- * } </pre>
- * 
- * <p> implementa a interface {@link Comando} e utuliza a classe
- *      {@link DefinicaoColuna} para ter um padrão sobre o que é uma coluna
- * 
- * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.0
- * @see Comando
- * @see DefinicaoColuna
- */
+
 public class AdicionarRestricao implements Comando{
 	/**
 	 * a escolha do private final permite que o objeto seja imutável
