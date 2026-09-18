@@ -51,6 +51,7 @@ public class Selecionar implements Comando{
 
     /**
     * retorna a condição, se tiver
+     * @return retorna a condicao
     */
     public String getCondicao() {
         return condicao;
