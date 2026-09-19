@@ -130,10 +130,10 @@ public class AdicionarRestricao implements Comando{
     	return colunaReferenciada;
     }
     /**
-     * retorna uma representação no formato String do objeto final do AdicionarRestricao
-     * <p>formato: {@code "AdicionarRestricao[tabela=" + tabela + ", nomeRestricao=" + nomeRestricao + ", coluna=" + coluna + ", definicao=" + definicao + ", tabelaReferenciada=" + tabelaReferenciada + ", colunaReferenciada=" + colunaReferenciada +"]}"
-     * 
-     * @return representação do AdicionarRestricao em formato de texto
+     * retorna uma representação no formato String o comando AdicionarRestricao
+     * <p>formato: {@code 
+     * "AdicionarRestricao[tabela=" + tabela + ", nomeRestricao=" + nomeRestricao + ", coluna=" + coluna + ", definicao=" + definicao + ", tabelaReferenciada=" + tabelaReferenciada + ", colunaReferenciada=" + colunaReferenciada +"]}"
+     * @return representação em forma de texto do comando
      */
     @Override
     public String toString() {

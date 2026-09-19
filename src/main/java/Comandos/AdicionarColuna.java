@@ -58,10 +58,9 @@ public class AdicionarColuna implements Comando{
     }
     
     /**
-     * retorna uma representação no formato String do objeto final do AdicionarColuna
+     * retorna uma representação no formato String o comando AdicionarColuna
      * <p>formato: {@code "AdicionarColuna[tabela=" + tabela + ", coluna=" + novaColuna + "]"}
-     * 
-     * @return representação em forma de texto do objeto
+     * @return representação em forma de texto do comando
      */
     @Override 
     public String toString() {

@@ -58,18 +58,17 @@ public class Tradutor {
             traducao.put(CriarTabela.class, comando -> traducaoCriarTabela((CriarTabela) comando));
             traducao.put(Deletar.class, comando -> traducaoDeletar((Deletar) comando));
             traducao.put(EsvaziarDadosTabela.class, comando -> traducaoEsvaziarDadosTabela((EsvaziarDadosTabela) comando));
-            traducao.put(Excluir.class, comando -> traducaoExcluir((Excluir) comando));
             traducao.put(Inserir.class, comando -> traducaoInserir((Inserir) comando));
             traducao.put(ModificarColuna.class, comando -> traducaoModificarColuna((ModificarColuna) comando));
             traducao.put(Mostrar.class, comando -> traducaoMostrar((Mostrar) comando));
             traducao.put(RemoverColuna.class, comando -> traducaoRemoverColuna((RemoverColuna) comando));
             traducao.put(RemoverRestricao.class, comando -> traducaoRemoverRestricao((RemoverRestricao) comando));
-            traducao.put(RemoverTabela.class, comando -> traducaoRemoverTabela((RemoverTabela) comando));
             traducao.put(RenomearColuna.class, comando -> traducaoRenomearColuna((RenomearColuna)comando));
             traducao.put(RenomearRestricao.class, comando -> traducaoRenomearRestricao((RenomearRestricao) comando));
             traducao.put(RenomearTabela.class, comando -> traducaoRenomearTabela((RenomearTabela)comando )); // ainda não fiz esse método em /comandos/
             traducao.put(Selecionar.class, comando -> traducaoSelecionar((Selecionar) comando));
-            
+            traducao.put(ExcluirTabela.class, comando -> traducaoExcluirTabela((ExcluirTabela) comando));
+            traducao.put(ExcluirBancoDados.class, comando -> traducaoExcluirBancoDados((ExcluirBancoDados) comando)); 
         }
         public String traducao(Comando comando){
             Function<Comando, String> funcao = traducao.get(comando.getClass());
@@ -150,9 +149,14 @@ public class Tradutor {
         	banco.append(";");
         	return banco.toString();
         }
-        private String traducaoExcluir(Excluir excluir) { // preciso arrumar o excluir no /comandos/Excluir : o comando está o mesmo que o deletar
-        	banco = new StringBuilder("");
+        private String traducaoExcluirTabela(ExcluirTabela excluir) {
+        	banco = new StringBuilder("Drop Table ");
+        	banco.append(excluir.getNomeTabela());
+        	banco.append(";");
         	return banco.toString();
+        }
+        private String traducaoExcluirBancoDados(ExcluirBancoDados excluir) {
+        	throw new IllegalStateException("Esse comando não pode ser executado");        	
         }
         private String traducaoInserir(Inserir inserir) {
         	banco = new StringBuilder("Insert Into ");
@@ -201,12 +205,7 @@ public class Tradutor {
         	banco.append(";");
         	return banco.toString();
         }
-        private String traducaoRemoverTabela(RemoverTabela remover) {
-        	banco = new StringBuilder("Drop Table ");
-        	banco.append(remover.getNomeTabela());
-        	banco.append(";");
-        	return banco.toString();
-        }
+
         private String traducaoRenomearColuna(RenomearColuna renomear) {
         	banco = new StringBuilder("Alter table ");
         	banco.append(renomear.getTabela());

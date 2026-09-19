@@ -10,7 +10,7 @@ import java.util.List;
 public class Executor {
 
     public Resultado executar(String sql) throws SQLException {
-        try (Statement comando = Conexao.obterConexao().createStatement()) {
+        try (Statement comando = Conexao.obterConexaoAtual().createStatement()) {
             boolean result = comando.execute(sql);
             if (result) {
                 try (ResultSet resultSet = comando.getResultSet()) {

@@ -63,9 +63,9 @@ public class CriarTabela implements Comando{
     }
 
     /**
-     * retorna uma representação no formato String do comando CriarTabela
+     * retorna uma representação no formato String o comando CriarTabela
      * <p> formato: {@code "CriarTabela[tabela=" + nomeTabela + ", colunas=" + colunas + "]"}
-     * @return representação em forma de texto do objeto 
+     * @return representação em forma de texto do comando 
      */
     @Override
     public String toString() {

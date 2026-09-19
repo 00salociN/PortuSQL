@@ -1,13 +1,18 @@
 package Comandos;
 
 /**
+ * comando que altera o tipo de dado de uma coluna
+ * 
+ * <p< sintaxe:
+ * <pre> {@code
+ * ALTERAR TABELA <nome_tabela> ALTERAR COLUNA <nome_coluna> <novo_tipo>
+ * }</pre>
+ * 
+ * <p> implementa a interface {@link Comando}
+ * 
  * @author Nicolas Gabriel Venâncio dos Santos
  * @version 1.0
- * 
- * sintaxe: ALTERAR TABELA <nome_tabela> ALTERAR COLUNA <nome_coluna> <tipo_dado>
- * alterar o tipo de dado de uma coluna existente
- * 
- * implementa a interface {@link Comando}
+ * @see Comando
  */
 public class AlterarColuna implements Comando{
     /* 
@@ -15,8 +20,14 @@ public class AlterarColuna implements Comando{
     * private: impede o acesso de outros arquivos
     * final: impede a reatribuição do valor
     */
+	
+	/** nome da tabela*/
     private final String tabela;
+    
+    /** nome da coluna que será alterada */
     private final String nomeColuna;
+    
+    /** novo tipo de dado da coluna */
     private final String novoTipoDado;
 
     /**
@@ -56,9 +67,9 @@ public class AlterarColuna implements Comando{
     }
     
     /**
-     * retorna uma representação no formato String do objeto final do AlterarColuna
-     * formato: "AlterarColuna[tabela=" + tabela + ", nomeTabela=" + nomeColuna + ", novoTipoDado=" + novoTipoDado + "]"
-     * @return representação em forma de texto do objeto 
+     * retorna uma representação no formato String o comando AlterarColuna
+     * <p> formato: "AlterarColuna[tabela=" + tabela + ", nomeTabela=" + nomeColuna + ", novoTipoDado=" + novoTipoDado + "]"
+     * @return representação em forma de texto do do comando 
      */
     @Override
     public String toString() {

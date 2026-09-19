@@ -17,8 +17,6 @@ public class Atualizar implements Comando{
     * a escolha do private final permite que o objeto seja imutável
     * private: impede o acesso de outros arquivos
     * final: impede a reatribuição do valor
-    * 
-    * 
     */
     private final String tabela;
     private final Map<String, String> campos;

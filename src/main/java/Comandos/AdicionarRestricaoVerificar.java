@@ -12,8 +12,10 @@ package Comandos;
  * }</pre>
  * 
  * <p> implementa a interface {@link Comando}
+ * 
  * @author Nicolas Gabriel venâncio dos Santos
  * @version 1.0
+ * @see Comando
  */
 
 public class AdicionarRestricaoVerificar implements Comando{
@@ -69,6 +71,11 @@ public class AdicionarRestricaoVerificar implements Comando{
 		return condicao;
 	}
 	
+	/**
+	 * retorna uma representação no formato String o comando AdicionarRestricaoVerificar
+	 * <p> formato: {@code "AdicionarRestricaoVerificar[tabela=" + tabela + ", nomeRestricao=" + nomeRestricao + ", condicao=" + condicao + "]"}
+	 * @return representação em forma de texto do comando
+	 */
 	@Override
 	public String toString() {
 		return "AdicionarRestricaoVerificar[tabela=" + tabela + ", nomeRestricao=" + nomeRestricao + ", condicao=" + condicao + "]";

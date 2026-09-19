@@ -1,15 +1,21 @@
 package Comandos;
 
+import java.util.List;
+
 /**
+ * comando que insere dados nas colunas
+ * 
+ * <p>sintaxe:
+ * <pre> {@code
+ * INSERIR <coluna(s)> EM <nome_tabela> VALORES (<valor(es)>) 
+ * }</pre>
+ * 
+ * <p> implementa a interface {@link Comando}
+ * 
  * @author Nicolas Gabriel Venâncio dos Santos
  * @version 1.0
- * 
- * sintaxe: inserir <(campo(s))> em <nome_tabela> valores <(valor(es)> // ainda não sei se devo mudar a estrutura
- * este comando insere dados em uma tabela // por enquanto não consegue adicionar mais de 2 valores separados
- * 
- * implementa a interface {@link Comando}
+ * @see Comando
  */
-import java.util.List;
 
 
 public class Inserir implements Comando{
@@ -18,8 +24,14 @@ public class Inserir implements Comando{
 	 * private: impede o acesso de outros arquivos
 	 * final: impede a reatribuição do valor
 	 */
+	
+	/** nome da tabela */
     private final String tabela;
+    
+    /** lista as colunas onde deseja inserir os valores*/
     private final List<String> colunas;
+    
+    /** listas os valores na ordem da coluna */
     private final List<String> valores;
 
     /**
@@ -59,9 +71,9 @@ public class Inserir implements Comando{
     }
 
     /**
-     * retorna uma representação no formato String do objeto final do Inserir
-     * formato: "Inserir[tabela=" + tabela + ", colunas=" + colunas + ", valores=" + valores + "]"
-     * @return representação em forma de texto do objeto
+     * retorna uma representação no formato String o comando inserir
+     * <p>formato: {@code "Inserir[tabela=" + tabela + ", colunas=" + colunas + ", valores=" + valores + "]"}
+     * @return representação em forma de texto do comando
      */
     public String toString() {
         return "Inserir[tabela=" + tabela + ", colunas=" + colunas + ", valores=" + valores + "]";

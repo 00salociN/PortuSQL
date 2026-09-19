@@ -31,14 +31,14 @@ public class Parser {
 			return parserExcluir();
 //		case"DELETAR":
 //			return parserDeletar();
-		case"REMOVER":
-			return parserRemoverTabela();
 		case"ALTERAR":
 			return parserAlterarTabela();
 		case"ESVAZIAR":
 			return parserEsvaziarTabela();
 		case"MOSTRAR":
 			return parserMostrar();
+		case"USAR":
+			return parserUsarBancoDados();
 			default:
 				throw new ErroParser("Comando não reconhecido: '" + atual.getLexema() + "'", atual.getLinha(), atual.getColuna());
 		}
@@ -142,22 +142,38 @@ public class Parser {
 		String valor = esperarValor();
 		atribuicoes.put(coluna, valor);
 	}
-	private Excluir parserExcluir() {
+	
+	private Comando parserExcluir() {
 		esperarLexema("EXCLUIR");
+		Token proximo = tokenAtual();
+		switch(proximo.getLexema().toUpperCase()) {
+		case "TABELA":
+			avancar();
+			String nomeTabela = esperarIdentificador();
+			return new ExcluirTabela(nomeTabela);
+		
+		case "BANCO":
+			avancar();
+			esperarLexema("DE");
+			esperarLexema("DADOS");
+			String nomeBanco = esperarIdentificador();
+			return new ExcluirBancoDados(nomeBanco);
+			
+			default: 
+				throw new ErroParser("Esperava TABELA ou BANCO DE DADOS", proximo.getLinha(), proximo.getColuna());
+			
+		}
+	}		
+	
+	private UsarBancoDados parserUsarBancoDados() {
+		esperarLexema("USAR");
+		esperarLexema("BANCO");
 		esperarLexema("DE");
-		String tabela = esperarIdentificador();
-		String condicao = parserCondicao();
-		return new Excluir (tabela, condicao);
+		esperarLexema("DADOS");
+		String nomeBanco = esperarIdentificador();
+		return new UsarBancoDados(nomeBanco);
 	}
-	 //private Deletar parserDeletar() {
-		// ainda preciso arrumar o Deletar anterior (tudo) XDXD
-	// }
-	private RemoverTabela parserRemoverTabela() {
-		esperarLexema("REMOVER");
-		esperarLexema("TABELA");
-		String nomeTabela = esperarIdentificador();
-		return new RemoverTabela(nomeTabela);
-	}
+	
 	private EsvaziarDadosTabela parserEsvaziarTabela() {
 		esperarLexema("ESVAZIAR");
 		esperarLexema("TABELA");
