@@ -1,5 +1,13 @@
 package Comandos;
 
+/**
+ * comando que adiciona uma restrição em uma coluna de uma tabela
+ * 
+ * <p> sintaxe:
+ * <pre> {@code
+ * ALTERAR TABELA <nome_tabela> ADICIONAR RESTRICAO <nome_restricao> <coluna> 
+ * 		<tipo_restricao>}
+ */
 
 public class AdicionarRestricao implements Comando{
 	/**
@@ -10,6 +18,9 @@ public class AdicionarRestricao implements Comando{
     private final String tabela;
     private final String nomeRestricao;
     private final String definicao;
+    private final String coluna;
+    private final String tabelaReferenciada;
+    private final String colunaReferenciada;
 
     /**
      * construtor que inicializa os atributos
@@ -17,10 +28,15 @@ public class AdicionarRestricao implements Comando{
      * @param nomeRestricao nome da Restricao adicionada
      * @param definicao tipo da restrição
      */
-    public AdicionarRestricao(String tabela, String nomeRestricao, String definicao) {
+    public AdicionarRestricao(String tabela, String nomeRestricao, String definicao, String coluna, String tabelaReferenciada, String colunaReferenciada) {
         this.tabela = tabela;
         this.nomeRestricao = nomeRestricao;
         this.definicao = definicao;
+        this.coluna = coluna;
+        this.tabelaReferenciada = tabelaReferenciada;
+        this.colunaReferenciada = colunaReferenciada;
+        
+        
     }
     
     /**
@@ -47,6 +63,17 @@ public class AdicionarRestricao implements Comando{
         return definicao;
     }
     
+    public String getColuna() {
+    	return coluna;
+    }
+    
+    public String getTabelaReferenciada() {
+    	return tabelaReferenciada;
+    }
+    
+    public String getColunaReferenciada() {
+    	return colunaReferenciada;
+    }
     /**
      * retorna uma representação no formato String do objeto final do AdicionarRestricao
      * formato: AdicionarRestricao[tabela=" + tabela + ", nomeRestricao" + nomeRestricao + ", definicao" + definicao + "]"
@@ -55,7 +82,7 @@ public class AdicionarRestricao implements Comando{
      */
     @Override
     public String toString() {
-        return "AdicionarRestricao[tabela=" + tabela + ", nomeRestricao" + nomeRestricao + ", definicao" + definicao + "]";
+        return "AdicionarRestricao[tabela=" + tabela + ", nomeRestricao=" + nomeRestricao + ", coluna=" + coluna + ", definicao=" + definicao + ", tabelaReferenciada=" + tabelaReferenciada + ", colunaReferenciada=" + colunaReferenciada +"]";
     }
     
 }

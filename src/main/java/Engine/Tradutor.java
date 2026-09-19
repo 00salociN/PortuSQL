@@ -40,6 +40,13 @@ public class Tradutor {
         tipo_dados.put("real", "real");
         tipo_dados.put("numerico", "numeric");
     }
+    
+    private static final Map<String, String> tipo_restricao = new HashMap<>();
+    static {
+    	tipo_restricao.put("chave primaria", "primary key");
+    	tipo_restricao.put("chave estrangeira", "foreign key");
+    	tipo_restricao.put("unica", "unique");
+    }
         
         private final Map<Class<?>, Function<Comando, String>> traducao = new HashMap<>();
         
@@ -81,12 +88,22 @@ public class Tradutor {
             return banco.toString();
         }
         private String traducaoAdicionarRestricao(AdicionarRestricao restricao) {
+        	String tipoSql = tipo_restricao.get(restricao.getDefinicao().toLowerCase());
+        		if(tipoSql == null) {
+        			throw new IllegalArgumentException("Tipo de restrição não conhecida: " + restricao.getDefinicao());
+        		}
         	banco = new StringBuilder("Alter Table ");
         	banco.append(restricao.getTabela());
-        	banco.append(" Add Column ");
+        	banco.append(" Add Constraint ");
         	banco.append(restricao.getNomeRestricao());
         	banco.append(" ");
-        	banco.append(restricao.getDefinicao());
+        	banco.append(tipoSql);
+        	banco.append(" (").append(restricao.getColuna()).append(")");
+        	if(restricao.getTabelaReferenciada() != null) {
+        		banco.append(" References ");
+        		banco.append(restricao.getColunaReferenciada());
+        		banco.append("(").append(restricao.getColunaReferenciada()).append(")");
+        	}
         	banco.append(";");
         	return banco.toString();
         }

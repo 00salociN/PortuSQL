@@ -1,22 +1,33 @@
 package Comandos;
 
-/** 
- * @author Nicolas Gabriel Venâncio dos Santos
+
+/** comando que adiciona uma coluna na tabeça
+ * 
+ * <p> sintaxe:
+ * <pre>{@code
+ * ALTERAR TABELA <nome_tabela> ADICIONAR COLUNA <nome_coluna> <tipo_dado> <restricao (opcional)
+ * }</pre>
+ * 
+ * <p> implementa a interface {@link Comando} e utuliza a classe
+ *      {@link DefinicaoColuna} para ter um padrão sobre o que é uma coluna
+ *      
+ * @author Nicolas Gabriel Venâncio dos Santps
  * @version 1.0
- * 
- * Sintaxe: ALTERAR TABELA <nome_tabela> ADICIONAR COLUNA <nome_coluna> <tipo_dadp>
- * Este comando adiciona uma coluna a uma tabela ja existente
- * 
- * implementa a interface {@link Comando}
- * utiliza a class {@link DefinicaoColuna} para ter um padrão sobre o que é uma coluna
+ * @see Comando
+ * @see DefinicaoColuna
  */
+
 public class AdicionarColuna implements Comando{ 
 	/* 
 	 * a escolha do private final permite que o objeto seja imutável 
 	 * private: impede o acesso de outros arquivos
 	 * final: impede a reatribuição do valor
 	 */
+	
+	/** nome da tabela */
     private final String tabela;
+    
+    /** definição da nova coluna (nome, tipo e restrição (opcional) */
     private final DefinicaoColuna novaColuna;
     
     
@@ -40,7 +51,7 @@ public class AdicionarColuna implements Comando{
     
     /**
      * retorna a definicao da coluna que será adicionada
-     * @return definicao da nova coluna
+     * @return nome da tabela armazenada definicao da nova coluna
      */
     public DefinicaoColuna getNovaColuna(){ 
         return novaColuna; 
@@ -48,7 +59,7 @@ public class AdicionarColuna implements Comando{
     
     /**
      * retorna uma representação no formato String do objeto final do AdicionarColuna
-     * Formato: AdicionarColuna[tabela=" + tabela + ", coluna=" + novaColuna + "]"
+     * formato: {@code AdicionarColuna[tabela=" + tabela + ", coluna=" + novaColuna + "]"}
      * 
      * @return representação em forma de texto do objeto
      */

@@ -1,19 +1,35 @@
 package Comandos;
 
 /**
+ * define o que é uma coluna de uma tabela, com nome, tipo de dado e se é chave primária
+ * 
+ * <p>esta classe não é um comando, mas sim uma definição padrão para representar uma coluna
+ * 
  * @author Nicolas Gabriel Venâncio dos Santos
  * @version 1.0
  */
 public class DefinicaoColuna {
+    /*
+     * a escolha do private final permite que o objeto seja imutável
+     * private: impede o acesso de outros arquivos
+     * final: impede a reatribuição do valor
+     */
+	
+	/** nome da coluna */
     private final String nome;
+    
+    /** tipo do dado da coluna */
     private final String tipoDado;
+    
+    /** verifica se a coluna é uma chave primária */
     private final boolean chavePrimaria;
 
     /**
-     * consteutor de inicializa os atributos
+     * construtor que inicializa os atributos
      * @param nome nome da coluna
      * @param tipoDado tipo do dado da coluna
-     * @param chavePrimaria tipo de dado boolean. se tiver pk chavePrimaria = true, por padrão é false
+     * @param chavePrimaria {@code true} se a coluna for chave primária
+     * 		{@code false} caso contrário
      */
     public DefinicaoColuna(String nome, String tipoDado, boolean chavePrimaria) {
         this.nome = nome;
@@ -30,7 +46,7 @@ public class DefinicaoColuna {
     }
     
     /**
-     * retorna o tipo do dado
+     * retorna o tipo do dado da coluna
      * @return tipo do dado
      */
     public String getTipoDado() {
@@ -46,8 +62,8 @@ public class DefinicaoColuna {
     }
 
     /**
-     * retorna uma representação no formatdo String do objeto final do DefinicaoColuna
-     * formato: nome + " " + tipoDado + (chavePrimaria ? " (CHAVE PRIMARIA)" : ""
+     * retorna uma representação no formatdo String da classe DefinicaoColuna
+     * <p>formato: {@code nome + " " + tipoDado + (chavePrimaria ? " (CHAVE PRIMARIA)" : ""}
      * @return representação em forma de texto do objeto 
      */
     @Override

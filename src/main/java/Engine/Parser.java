@@ -202,10 +202,30 @@ public class Parser {
 		case "RESTRICAO":
 			avancar();
 			String nomeRestricao = esperarIdentificador();
-			String definicao = capturaTexto();
-			return new AdicionarRestricao(tabela, nomeRestricao, definicao);
+			if (tokenAtual().getTipo() == TipoToken.palavra_chave && tokenAtual().getLexema().equalsIgnoreCase("VERIFICACAO")) {
+				avancar();
+				String condicao = capturaTexto();
+				return new AdicionarRestricaoVerificar(tabela, nomeRestricao, condicao);
+			}
+			String coluna = esperarIdentificador();
+			StringBuilder tipoRestricaoTexto = new StringBuilder();
+			while (tokenAtual().getTipo() != TipoToken.fim && !tokenAtual().getLexema().equalsIgnoreCase("REFERENCIA")) {
+				tipoRestricaoTexto.append(tokenAtual().getLexema()).append(" ");
+				avancar();
+			}
+			String definicao = tipoRestricaoTexto.toString().trim();
+			String tabelaReferenciada = null;
+			String colunaReferenciada = null;
+			if(tokenAtual().getLexema().equalsIgnoreCase("REFERENCIA")) {
+				avancar();
+				tabelaReferenciada = esperarIdentificador();
+				esperarTipo(TipoToken.parenteses_esquerda, "(");
+				colunaReferenciada = esperarIdentificador();
+				esperarTipo(TipoToken.parenteses_direita, ")");
+			}
+			return new AdicionarRestricao(tabela, nomeRestricao, definicao, coluna, tabelaReferenciada, colunaReferenciada);
 			default:
-				throw new ErroParser("Esperava COLUNA ou RESTRICAO após ADICIONAR", proximo.getLinha(), proximo.getColuna());
+				throw new ErroParser("comando inválido", proximo.getLinha(), proximo.getColuna());
 		}
 	}
 	private Comando parserRemover(String tabela) {

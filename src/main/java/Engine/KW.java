@@ -43,6 +43,9 @@ public class KW {
         palavras_simples.put("esvaziar", TipoToken.palavra_chave);
         palavras_simples.put("em", TipoToken.palavra_chave);
         palavras_simples.put("para", TipoToken.palavra_chave);
+        palavras_simples.put("referencia", TipoToken.palavra_chave);
+        palavras_simples.put("unica", TipoToken.palavra_chave);
+        palavras_simples.put("verificar", TipoToken.palavra_chave);
 
         tipo_dados.put("int", TipoToken.tipo_dado);
         tipo_dados.put("inteiro", TipoToken.tipo_dado);
