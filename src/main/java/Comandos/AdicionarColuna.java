@@ -59,7 +59,7 @@ public class AdicionarColuna implements Comando{
     
     /**
      * retorna uma representação no formato String do objeto final do AdicionarColuna
-     * formato: {@code AdicionarColuna[tabela=" + tabela + ", coluna=" + novaColuna + "]"}
+     * <p>formato: {@code "AdicionarColuna[tabela=" + tabela + ", coluna=" + novaColuna + "]"}
      * 
      * @return representação em forma de texto do objeto
      */

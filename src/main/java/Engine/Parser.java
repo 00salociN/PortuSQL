@@ -202,7 +202,7 @@ public class Parser {
 		case "RESTRICAO":
 			avancar();
 			String nomeRestricao = esperarIdentificador();
-			if (tokenAtual().getTipo() == TipoToken.palavra_chave && tokenAtual().getLexema().equalsIgnoreCase("VERIFICACAO")) {
+			if (tokenAtual().getTipo() == TipoToken.palavra_chave && tokenAtual().getLexema().equalsIgnoreCase("VERIFICAR")) {
 				avancar();
 				String condicao = capturaTexto();
 				return new AdicionarRestricaoVerificar(tabela, nomeRestricao, condicao);
