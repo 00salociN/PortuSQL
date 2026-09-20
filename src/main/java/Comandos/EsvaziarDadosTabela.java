@@ -22,11 +22,11 @@ public class EsvaziarDadosTabela implements Comando{
 	 * final: impede a reatribuição do valor
 	 */
 	
-	/** noome da tabela */
+	/** nome da tabela */
     private final String tabela;
 
     /**
-     * contrutor que iniciliza os atributos
+     * construtor que inicializa os atributos
      * @param tabela nome da tabela que será esvaziada
      */
     public EsvaziarDadosTabela(String tabela){
@@ -43,7 +43,7 @@ public class EsvaziarDadosTabela implements Comando{
      
      /**
       * retorna uma representação no formato String o comando EsvaziarDadosTabela
-      * formato: "EsvaziarDadosTabela[tabela=" + tabela + "]"
+      * <p>formato: {@code "EsvaziarDadosTabela[tabela=" + tabela + "]"}
       * @return representação em forma de texto do comando
       */
     @Override

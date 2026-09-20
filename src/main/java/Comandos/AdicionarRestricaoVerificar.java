@@ -1,7 +1,7 @@
 package Comandos;
 
 /**
- * este comando adicionar a restricao verificar
+ * este comando adiciona a restrição verificar
  * 
  * diferente das outras restrições, o verificar não guarda uma coluna,
  * 		ele atua sobre uma condição/expressão
@@ -13,7 +13,7 @@ package Comandos;
  * 
  * <p> implementa a interface {@link Comando}
  * 
- * @author Nicolas Gabriel venâncio dos Santos
+ * @author Nicolas Gabriel Venâncio dos Santos
  * @version 1.0
  * @see Comando
  */
@@ -32,13 +32,13 @@ public class AdicionarRestricaoVerificar implements Comando{
 	/** nome da restricao */
 	private final String nomeRestricao;
 	
-	/** condicacao do verificar */
+	/** condição do verificar */
 	private final String condicao;
 	
 	/**
 	 * construtor que inicializa os atributos
 	 * @param tabela nome da tabela onde a restrição será adicionada
-	 * @param nomeRestricao nome da restição adicionada
+	 * @param nomeRestricao nome da restrição adicionada
 	 * @param condicao condição na qual o verificar irá atuar
 	 */
 	public AdicionarRestricaoVerificar(String tabela, String nomeRestricao, String condicao) {

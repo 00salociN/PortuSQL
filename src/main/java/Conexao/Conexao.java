@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Conexao;
 
 import java.io.File;
@@ -10,33 +6,74 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 /**
+ * camada de conexao com o banco H2 embarcado do PortuSQL.
  *
- * @author Etec
+ * <p>cada "banco de dados" do PortuSQL e um arquivo H2 dentro da pasta
+ * {@code ~/.portusql}, criado automaticamente pelo driver no momento em que
+ * a conexao e aberta. esta classe centraliza a criacao, o uso e a exclusao
+ * desses bancos, mantendo a conexao ativa e o nome do banco em uso.
+ *
+ * <p>como o H2 (modo embarcado) nao possui o comando SQL CREATE DATABASE,
+ * "criar um banco" aqui significa abrir uma conexao com o caminho desejado;
+ * o arquivo do banco e gerado pelo proprio driver.
+ *
+ * @author Nicolas Gabriel Venâncio dos Santos
+ * @version 1.0
+ * @see Executor
  */
 public class Conexao {
+    /** pasta onde os bancos do PortuSQL ficam guardados */
     private static final String PASTA_BASE = System.getProperty("user.home") + File.separator + ".portusql";
+    /** usuario padrao do H2 */
     private static final String USER = "sa";
+    /** senha padrao do H2 (vazia) */
     private static final String PASSWORD = "";
+    /** nome do banco usado quando nenhum outro foi escolhido */
     private static final String BANCO_PADRAO = "portusql";
+    /** conexao ativa no momento (ou {@code null} se nao houver) */
     private static Connection conexaoAtual;
+    /** nome do banco conectado no momento (ou {@code null}) */
     private static String nomeBancoAtual;
     
     private Conexao() { 
     	
     }
     
+    /**
+     * retorna o caminho do arquivo de um banco dentro da pasta base
+     * @param nomeBanco nome do banco
+     * @return caminho completo (sem extensao) do arquivo do banco
+     */
     public static String caminhoBanco(String nomeBanco) {
     	return PASTA_BASE + File.separator + nomeBanco;
     }
+
+    /**
+     * retorna o nome do banco em uso no momento
+     * @return nome do banco atual, ou {@code null} se nenhum estiver conectado
+     */
     public static String getNomeBancoAtual() {
     	return nomeBancoAtual;
     }
     
+    /**
+     * retorna a conexao ativa com o banco atual, ou com o banco padrao
+     * caso nenhum tenha sido escolhido
+     * @return conexao H2 ativa
+     * @throws SQLException se a conexao falhar
+     */
     public static Connection obterConexaoAtual() throws SQLException{
     	String nomeBanco = (nomeBancoAtual != null) ? nomeBancoAtual : BANCO_PADRAO;
     	return obterConexao(nomeBanco);
     }
     
+    /**
+     * retorna (e mantem ativa) a conexao com o banco informado, trocando o
+     * banco atual quando necessario
+     * @param nomeBanco nome do banco
+     * @return conexao H2 com o banco informado
+     * @throws SQLException se a conexao falhar
+     */
     public static Connection obterConexao(String nomeBanco) throws SQLException{
     	boolean troca = conexaoAtual == null || conexaoAtual.isClosed() || !nomeBanco.equals(nomeBancoAtual);
     	
@@ -50,6 +87,10 @@ public class Conexao {
     	return conexaoAtual;
     }
     
+    /**
+     * fecha a conexao ativa e limpa o nome do banco em uso
+     * @throws SQLException se houver erro ao fechar a conexao
+     */
     public static void fecharConexao() throws SQLException{
     	if(conexaoAtual != null && !conexaoAtual.isClosed()) {
     		conexaoAtual.close();
@@ -60,6 +101,12 @@ public class Conexao {
     }
     
     
+    /**
+     * exclui o arquivo de um banco, fechando a conexao antes se for o banco atual
+     * @param nomeBanco nome do banco a ser excluido
+     * @return {@code true} se o arquivo principal do banco foi apagado
+     * @throws SQLException se houver erro ao fechar a conexao
+     */
     public static boolean excluirBanco(String nomeBanco) throws SQLException {
     	if (nomeBanco.equals(nomeBancoAtual)) {
     		fecharConexao();
@@ -75,8 +122,5 @@ public class Conexao {
     }
     
   
-    
 
     }
-    
-

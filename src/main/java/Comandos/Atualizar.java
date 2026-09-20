@@ -1,32 +1,43 @@
 package Comandos;
 
-/**
- * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.0
- * 
- * sintaxe: atualizar <nome_tabela> 'set' <coluna> = <novo_valor> onde <condicao>
- * este comando atualiza dados que já existem em uma tabela
- * 
- * implemta a interface {@link Comando}
- */
 import java.util.Map;
 
-
+/**
+ * comando que atualiza dados existentes em uma tabela
+ * 
+ * <p>sintaxe:
+ * <pre>{@code
+ * ATUALIZAR <nome_tabela> DEFINIR <coluna> = <novo_valor>
+ * 		[, <coluna> = <novo_valor> ...]
+ * 		ONDE <condicao>
+ * }</pre>
+ * 
+ * <p>a clausula ONDE e opcional; sem ela, todas as linhas sao atualizadas
+ * 
+ * <p>implementa a interface {@link Comando}
+ * 
+ * @author Nicolas Gabriel Venâncio dos Santos
+ * @version 1.0
+ * @see Comando
+ */
 public class Atualizar implements Comando{
     /**
-    * a escolha do private final permite que o objeto seja imutável
-    * private: impede o acesso de outros arquivos
-    * final: impede a reatribuição do valor
-    */
+     * a escolha do private final permite que o objeto seja imutável
+     * private: impede o acesso de outros arquivos
+     * final: impede a reatribuição do valor
+     */
+    /** nome da tabela atualizada */
     private final String tabela;
+    /** pares coluna -> novo valor que serao atualizados */
     private final Map<String, String> campos;
+    /** condicao da atualizacao (opcional) */
     private final String condicao;
     
     /**
-     * construtor que inicaliza os atributos
-     * @param tabela nome da tabela em que o campo que será atualizado está
-     * @param campos campo que será atualizado
-     * @param condicao condicao da atualização(opicional)   
+     * construtor que inicializa os atributos
+     * @param tabela nome da tabela em que os campos serao atualizados
+     * @param campos pares chave-valor (coluna -> novo valor)
+     * @param condicao condicao da atualizacao (opcional)
      */
     public Atualizar(String tabela, Map<String, String> campos, String condicao){
         this.tabela = tabela;
@@ -35,7 +46,7 @@ public class Atualizar implements Comando{
     }
     
     /**
-     * retorna a tabela que o campo atualizado está
+     * retorna a tabela em que os campos serao atualizados
      * @return nome da tabela
      */
     public String getTabela(){
@@ -43,26 +54,25 @@ public class Atualizar implements Comando{
     }
     
     /**
-     * retorna os campos e valores que serão atualizados
+     * retorna os campos e novos valores que serao atualizados
      * @return {@link Map} contendo os pares chave-valor (coluna -> novo valor)
-     * 		onde a chave é nome da coluna e o valor é o novo valor
      */
     public Map<String, String> getCampos() {
         return campos;
     }
     
     /**
-     * retorna a condição(opicional)
-     * @return nome da condicao
+     * retorna a condicao da atualizacao, se houver
+     * @return condicao da atualizacao
      */
     public String getCondicao() {
         return condicao;
     }
 
     /**
-     * retorna uma representação no formato String do objeto final do Atualizar
-     * formato: "Atualizar[tabela=" + tabela + ", campos=" + campos + ", condicao=" + condicao + "]"
-     * @return representação em forma de texto do objeto 
+     * retorna uma representação no formato String do comando Atualizar
+     * <p>formato: {@code "Atualizar[tabela=" + tabela + ", campos=" + campos + ", condicao=" + condicao + "]"}
+     * @return representação em forma de texto do comando
      */
     @Override
     public String toString() {

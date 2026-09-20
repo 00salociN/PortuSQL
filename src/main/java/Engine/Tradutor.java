@@ -12,11 +12,25 @@ import Comandos.*;
 import java.util.stream.Collectors;
 
 /**
+ * tradutor do PortuSQL para SQL (H2).
  *
- * @author Etec
+ * <p>recebe um objeto {@link Comando} montado pelo {@link Parser} e devolve a
+ * string SQL correspondente, pronta para ser executada pelo {@link Executor}.
+ *
+ * <p>a traducao usa dois dicionarios estaticos ({@code tipo_dados} e
+ * {@code tipo_restricao}) para converter os tipos e restricoes do PortuSQL
+ * para os equivalentes do H2, e um mapa de funcoes que escolhe o metodo de
+ * traducao conforme a classe do comando.
+ *
+ * @author Nicolas Gabriel Venâncio dos Santos
+ * @version 1.0
+ * @see Comando
+ * @see Parser
  */
 public class Tradutor {
+	/** acumulador reutilizado na montagem das strings SQL */
 	StringBuilder banco = new StringBuilder();
+    /** dicionario que traduz os tipos de dado do PortuSQL para os tipos do H2 */
     private static final Map<String, String> tipo_dados = new HashMap<>();
     
     static {
@@ -41,6 +55,7 @@ public class Tradutor {
         tipo_dados.put("numerico", "numeric");
     }
     
+    /** dicionario que traduz as restricoes do PortuSQL para as do SQL */
     private static final Map<String, String> tipo_restricao = new HashMap<>();
     static {
     	tipo_restricao.put("chave primaria", "primary key");
@@ -48,8 +63,12 @@ public class Tradutor {
     	tipo_restricao.put("unica", "unique");
     }
         
+        /** mapa que associa cada classe de comando a sua funcao de traducao */
         private final Map<Class<?>, Function<Comando, String>> traducao = new HashMap<>();
         
+        /**
+         * construtor que registra a funcao de traducao de cada comando
+         */
         public Tradutor() {
             traducao.put(AdicionarColuna.class, comando -> traducaoAdicionarColuna((AdicionarColuna) comando));
             traducao.put(AdicionarRestricao.class, comando -> traducaoAdicionarRestricao((AdicionarRestricao) comando));
@@ -70,6 +89,12 @@ public class Tradutor {
             traducao.put(MostrarTabela.class, comando -> traducaoMostrarTabela((MostrarTabela) comando));
             traducao.put(MostrarColuna.class, comando -> traducaoMostrarColuna((MostrarColuna) comando));
         }
+        /**
+         * traduz um comando PortuSQL para a string SQL correspondente
+         * @param comando comando montado pelo {@link Parser}
+         * @return SQL (H2) pronto para execucao
+         * @throws IllegalArgumentException se o comando nao tiver traducao registrada
+         */
         public String traducao(Comando comando){
             Function<Comando, String> funcao = traducao.get(comando.getClass());
             if(funcao == null) {
@@ -243,6 +268,12 @@ public class Tradutor {
             if (selecionar.getCondicao() != null && !selecionar.getCondicao().isEmpty()) {
                 banco.append(" where ").append(traducaoCondicao(selecionar.getCondicao()));
             }
+            if(selecionar.getAgruparPor() != null && !selecionar.getAgruparPor().isEmpty()) {
+            	banco.append(" group by").append(String.join(", ", selecionar.getAgruparPor()));
+            }
+            if(selecionar.getOrdenarPor() != null && !selecionar.getOrdenarPor().isEmpty()) {
+            	banco.append(" order by ").append(String.join(", ", selecionar.getOrdenarPor()));
+            }
             banco.append(";");
             return banco.toString();
         }
@@ -282,6 +313,9 @@ public class Tradutor {
                     .append(tipoSql);
             if (coluna.isChavePrimaria()) {
                 definicao.append(" Primary Key");
+            }
+            if(coluna.isNaoNulo()) {
+            	definicao.append(" Not Null");
             }
             return definicao.toString();
         }

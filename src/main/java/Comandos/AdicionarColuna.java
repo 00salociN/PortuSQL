@@ -1,24 +1,25 @@
 package Comandos;
 
 
-/** comando que adiciona uma coluna na tabeça
+/**
+ * comando que adiciona uma coluna em uma tabela
  * 
- * <p> sintaxe:
+ * <p>sintaxe:
  * <pre>{@code
- * ALTERAR TABELA <nome_tabela> ADICIONAR COLUNA <nome_coluna> <tipo_dado> <restricao (opcional)
+ * ALTERAR TABELA <nome_tabela> ADICIONAR COLUNA <nome_coluna> <tipo_dado> <restricao (opcional)>
  * }</pre>
  * 
- * <p> implementa a interface {@link Comando} e utuliza a classe
+ * <p>implementa a interface {@link Comando} e utiliza a classe
  *      {@link DefinicaoColuna} para ter um padrão sobre o que é uma coluna
  *      
- * @author Nicolas Gabriel Venâncio dos Santps
+ * @author Nicolas Gabriel Venâncio dos Santos
  * @version 1.0
  * @see Comando
  * @see DefinicaoColuna
  */
 
 public class AdicionarColuna implements Comando{ 
-	/* 
+	/** 
 	 * a escolha do private final permite que o objeto seja imutável 
 	 * private: impede o acesso de outros arquivos
 	 * final: impede a reatribuição do valor
@@ -51,7 +52,7 @@ public class AdicionarColuna implements Comando{
     
     /**
      * retorna a definicao da coluna que será adicionada
-     * @return nome da tabela armazenada definicao da nova coluna
+     * @return definicao da nova coluna
      */
     public DefinicaoColuna getNovaColuna(){ 
         return novaColuna; 

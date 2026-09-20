@@ -3,8 +3,8 @@ package Comandos;
 /**
  * comando que altera o tipo de dado de uma coluna
  * 
- * <p< sintaxe:
- * <pre> {@code
+ * <p>sintaxe:
+ * <pre>{@code
  * ALTERAR TABELA <nome_tabela> ALTERAR COLUNA <nome_coluna> <novo_tipo>
  * }</pre>
  * 
@@ -68,8 +68,8 @@ public class AlterarColuna implements Comando{
     
     /**
      * retorna uma representação no formato String o comando AlterarColuna
-     * <p> formato: "AlterarColuna[tabela=" + tabela + ", nomeTabela=" + nomeColuna + ", novoTipoDado=" + novoTipoDado + "]"
-     * @return representação em forma de texto do do comando 
+     * <p>formato: {@code "AlterarColuna[tabela=" + tabela + ", nomeTabela=" + nomeColuna + ", novoTipoDado=" + novoTipoDado + "]"}
+     * @return representação em forma de texto do comando 
      */
     @Override
     public String toString() {

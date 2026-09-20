@@ -15,7 +15,7 @@ package Comandos;
  * @see Comando
  */
 public class RemoverColuna implements Comando{
-	/* 
+	/** 
 	 * a escolha do private final permite que o objeto seja imutável 
 	 * private: impede o acesso de outros arquivos
 	 * final: impede a reatribuição do valor
@@ -55,7 +55,7 @@ public class RemoverColuna implements Comando{
 
     /**
      * retorna uma representação no formato String o comando RemoverColuna
-     * formato: "RemoverColuna[tabela=" + tabela + ", coluna=" + nomeColuna + "]"
+     * <p>formato: {@code "RemoverColuna[tabela=" + tabela + ", coluna=" + nomeColuna + "]"}
      * 
      * @return representação em forma de texto do comando
      */

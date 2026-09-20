@@ -23,6 +23,9 @@ public class DefinicaoColuna {
     
     /** verifica se a coluna é uma chave primária */
     private final boolean chavePrimaria;
+    
+    /** verifica se a coluna é obrigatória */
+    private final boolean naoNulo;
 
     /**
      * construtor que inicializa os atributos
@@ -30,11 +33,14 @@ public class DefinicaoColuna {
      * @param tipoDado tipo do dado da coluna
      * @param chavePrimaria {@code true} se a coluna for chave primária
      * 		{@code false} caso contrário
+     * @param naoNulo {@code true} se a coluna for obrigatória
+     * 		{@code false} caso contrário
      */
-    public DefinicaoColuna(String nome, String tipoDado, boolean chavePrimaria) {
+    public DefinicaoColuna(String nome, String tipoDado, boolean chavePrimaria, boolean naoNulo) {
         this.nome = nome;
         this.tipoDado = tipoDado;
         this.chavePrimaria = chavePrimaria;
+        this.naoNulo = naoNulo;
     }
     
     /**
@@ -60,15 +66,23 @@ public class DefinicaoColuna {
     public boolean isChavePrimaria() {
         return chavePrimaria;
     }
+    
+    /**
+     * retorna se é um campo obrigatório
+     * @return não nulo
+     */
+    public boolean isNaoNulo() {
+    	return naoNulo;
+    }
 
     /**
-     * retorna uma representação no formatdo String da classe DefinicaoColuna
-     * <p>formato: {@code nome + " " + tipoDado + (chavePrimaria ? " (CHAVE PRIMARIA)" : ""}
+     * retorna uma representação no formato String da classe DefinicaoColuna
+     * <p>formato: {@code nome + " " + tipoDado + (chavePrimaria ? " (CHAVE PRIMARIA)" : "" + (naoNulo ? " (NAO NULO)" : ""))}
      * @return representação em forma de texto do objeto 
      */
     @Override
     public String toString() {
-        return nome + " " + tipoDado + (chavePrimaria ? " (CHAVE PRIMARIA)" : "");
+        return nome + " " + tipoDado + (chavePrimaria ? " (CHAVE PRIMARIA)" : "" + (naoNulo ? " (NAO NULO)" : ""));
     }
     
 }

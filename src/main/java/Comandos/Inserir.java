@@ -71,10 +71,11 @@ public class Inserir implements Comando{
     }
 
     /**
-     * retorna uma representação no formato String o comando inserir
+     * retorna uma representação no formato String o comando Inserir
      * <p>formato: {@code "Inserir[tabela=" + tabela + ", colunas=" + colunas + ", valores=" + valores + "]"}
      * @return representação em forma de texto do comando
      */
+    @Override
     public String toString() {
         return "Inserir[tabela=" + tabela + ", colunas=" + colunas + ", valores=" + valores + "]";
     }

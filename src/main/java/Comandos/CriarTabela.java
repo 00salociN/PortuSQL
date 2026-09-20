@@ -14,7 +14,7 @@ import java.util.List;
  * )
  * } </pre>
  * 
- * <p> implementa a interface {@link Comando} e utuliza a classe
+ * <p> implementa a interface {@link Comando} e utiliza a classe
  *      {@link DefinicaoColuna} para ter um padrão sobre o que é uma coluna
  * 
  * @author Nicolas Gabriel Venâncio dos Santos
@@ -55,8 +55,8 @@ public class CriarTabela implements Comando{
     }
     
     /**
-     * retorna as definiçãoes das colunas da tabela
-     * @return {@link List} imutável de {@link DefinicaoColuna}, na ordem que serão renderizados
+     * retorna as definições das colunas da tabela
+     * @return {@link List} imutável de {@link DefinicaoColuna}, na ordem que serão renderizadas
      */
     public List<DefinicaoColuna> getColunas(){
         return colunas;

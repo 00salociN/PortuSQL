@@ -19,8 +19,8 @@ package Comandos;
  * 
  * <p>chave estrangeira:
  * <pre> {@code
- * ALTERAR TABEKA <nome_tabela> ADICIONAR RESTRICAO <nome_restricao>
- * 		<coluna> CHAVE ESTRANGEIRA <tabela_referenciada> (<coluna_referenciada>
+ * ALTERAR TABELA <nome_tabela> ADICIONAR RESTRICAO <nome_restricao>
+ * 		<coluna> CHAVE ESTRANGEIRA REFERENCIA <tabela_referenciada> (<coluna_referenciada>)
  * }</pre>
  * 
  * <p>unica:
@@ -28,8 +28,8 @@ package Comandos;
  * ALTERAR TABELA <nome_tabela> ADICIONAR RESTRICAO  <nome_restricao> <coluna> unica
  * }</pre>
  * 
- * <p>restrição do tipo verificar(check), está no {@link AdicionarRestricaoVerificar},
- * 		pois a gramática é difente o suficiente para não respeitar as outras acima
+ * <p>restrição do tipo verificar (check), está no {@link AdicionarRestricaoVerificar},
+ * 		pois a gramática é diferente o suficiente para não respeitar as outras acima
  * 
  * @author Nicolas Gabriel Venâncio dos Santos
  * @version 1.0
@@ -47,7 +47,7 @@ public class AdicionarRestricao implements Comando{
 	/** nome da tabela onde a coluna será adicionada */
     private final String tabela;
     
-    /** noome da restrição adicionada */
+    /** nome da restrição adicionada */
     private final String nomeRestricao;
     
     /** tipo da restrição adicionada */
@@ -59,17 +59,17 @@ public class AdicionarRestricao implements Comando{
     /** nome da tabela que será referenciada, caso seja uma chave estrangeira */
     private final String tabelaReferenciada;
     
-    /** coluna que será será referenciada, caso seja uma chave estrangeira */
+    /** coluna que será referenciada, caso seja uma chave estrangeira */
     private final String colunaReferenciada;
 
     /**
      * construtor que inicializa os atributos
      * @param tabela nome da tabela onde a restrição será adicionada
-     * @param nomeRestricao nome da Restricao adicionada
+     * @param nomeRestricao nome da restrição adicionada
      * @param definicao tipo da restrição
      * @param coluna nome da coluna onde a restrição se aplica
      * @param tabelaReferenciada nome da tabela referenciada, se for chave estrangeira
-     * @param colunaReferenciada nome da coluna referenciada, se for chave estranegira
+     * @param colunaReferenciada nome da coluna referenciada, se for chave estrangeira
      */
     public AdicionarRestricao(String tabela, String nomeRestricao, String definicao, String coluna, String tabelaReferenciada, String colunaReferenciada) {
         this.tabela = tabela;
@@ -132,7 +132,7 @@ public class AdicionarRestricao implements Comando{
     /**
      * retorna uma representação no formato String o comando AdicionarRestricao
      * <p>formato: {@code 
-     * "AdicionarRestricao[tabela=" + tabela + ", nomeRestricao=" + nomeRestricao + ", coluna=" + coluna + ", definicao=" + definicao + ", tabelaReferenciada=" + tabelaReferenciada + ", colunaReferenciada=" + colunaReferenciada +"]}"
+     * "AdicionarRestricao[tabela=" + tabela + ", nomeRestricao=" + nomeRestricao + ", coluna=" + coluna + ", definicao=" + definicao + ", tabelaReferenciada=" + tabelaReferenciada + ", colunaReferenciada=" + colunaReferenciada +"]"
      * @return representação em forma de texto do comando
      */
     @Override

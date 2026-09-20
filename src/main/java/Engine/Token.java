@@ -3,6 +3,10 @@ package Engine;
 /**
  * Representa um unico token extraido de uma consulta PortuSQL.
  * Um token carrega o texto original (lexema), seu tipo e sua posicao.
+ *
+ * @author Nicolas Gabriel Venâncio dos Santos
+ * @version 1.0
+ * @see TipoToken
  */
 public class Token {
     private final TipoToken tipo;
