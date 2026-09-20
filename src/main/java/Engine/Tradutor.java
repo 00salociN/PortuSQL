@@ -59,8 +59,6 @@ public class Tradutor {
             traducao.put(Deletar.class, comando -> traducaoDeletar((Deletar) comando));
             traducao.put(EsvaziarDadosTabela.class, comando -> traducaoEsvaziarDadosTabela((EsvaziarDadosTabela) comando));
             traducao.put(Inserir.class, comando -> traducaoInserir((Inserir) comando));
-            traducao.put(ModificarColuna.class, comando -> traducaoModificarColuna((ModificarColuna) comando));
-            traducao.put(Mostrar.class, comando -> traducaoMostrar((Mostrar) comando));
             traducao.put(RemoverColuna.class, comando -> traducaoRemoverColuna((RemoverColuna) comando));
             traducao.put(RemoverRestricao.class, comando -> traducaoRemoverRestricao((RemoverRestricao) comando));
             traducao.put(RenomearColuna.class, comando -> traducaoRenomearColuna((RenomearColuna)comando));
@@ -69,6 +67,8 @@ public class Tradutor {
             traducao.put(Selecionar.class, comando -> traducaoSelecionar((Selecionar) comando));
             traducao.put(ExcluirTabela.class, comando -> traducaoExcluirTabela((ExcluirTabela) comando));
             traducao.put(ExcluirBancoDados.class, comando -> traducaoExcluirBancoDados((ExcluirBancoDados) comando)); 
+            traducao.put(MostrarTabela.class, comando -> traducaoMostrarTabela((MostrarTabela) comando));
+            traducao.put(MostrarColuna.class, comando -> traducaoMostrarColuna((MostrarColuna) comando));
         }
         public String traducao(Comando comando){
             Function<Comando, String> funcao = traducao.get(comando.getClass());
@@ -169,24 +169,18 @@ public class Tradutor {
         	banco.append(");");
         	return banco.toString();
         }
-        private String traducaoModificarColuna(ModificarColuna modificar) {
-        	String tipoSql = tipo_dados.get(modificar.getNovoTipoDado().toLowerCase());
-        	if (tipoSql == null) {
-        		throw new IllegalArgumentException("Tipo de dado não válido: " + modificar.getNovoTipoDado());
-        	}
-        	banco = new StringBuilder("Alter Table ");
-        	banco.append(modificar.getTabela());
-        	banco.append("Alter Column ");
-        	banco.append(modificar.getNomeColuna());
-        	banco.append(" ");
-        	banco.append(tipoSql);
+        private String traducaoMostrarTabela(MostrarTabela mostrar) {
+        	banco = new StringBuilder("Show Columns From ");
+        	banco.append(mostrar.getNomeTabela());
         	banco.append(";");
         	return banco.toString();
         }
-        private String traducaoMostrar(Mostrar mostrar) {
-        	banco = new StringBuilder("Show ");
-        	banco.append(mostrar.getEntidade());
-        	banco.append(";");
+        private String traducaoMostrarColuna(MostrarColuna mostrar) {
+        	banco = new StringBuilder("Select * From Information_Schema.Columns Where Table_Name = '");
+        	banco.append(mostrar.getNomeTabela().toUpperCase());
+        	banco.append(" ' And Column_Name = '");
+        	banco.append(mostrar.getNomeColuna().toUpperCase());
+        	banco.append("';");
         	return banco.toString();
         }
         private String traducaoRemoverColuna(RemoverColuna remover) {

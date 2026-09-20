@@ -1,13 +1,18 @@
 package Comandos;
 
 /**
+ * comando que esvazia todos os dados de uma tabela
+ * 
+ * <p>sintaxe:
+ * <pre> {@code
+ * ESVAZIAR TABELA <nome_tabela>
+ * }</pre>
+ * 
+ * <p> implementa a interface {@link Comando}
+ * 
  * @author Nicolas Gabriel Venâncio dos Santos
  * @version 1.0
- * 
- * sintaxe: ESVAZIAR TABELA <nome_tabela>
- * este comando remove todas as linhas de uma tabela
- * 
- * implementa a interface {@link Comando}
+ * @see Comando
  */
 public class EsvaziarDadosTabela implements Comando{
 	
@@ -16,6 +21,8 @@ public class EsvaziarDadosTabela implements Comando{
 	 * private: impede o acesso de outros arquivos
 	 * final: impede a reatribuição do valor
 	 */
+	
+	/** noome da tabela */
     private final String tabela;
 
     /**
@@ -35,9 +42,9 @@ public class EsvaziarDadosTabela implements Comando{
      }
      
      /**
-      * retorna uma representação no formato String do objeto final do EsvaziarDadosTabela
+      * retorna uma representação no formato String o comando EsvaziarDadosTabela
       * formato: "EsvaziarDadosTabela[tabela=" + tabela + "]"
-      * @return representação em forma de texto do objeto
+      * @return representação em forma de texto do comando
       */
     @Override
     public String toString() {

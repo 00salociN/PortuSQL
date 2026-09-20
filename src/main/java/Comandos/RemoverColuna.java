@@ -1,14 +1,18 @@
 package Comandos;
 
 /**
- *
+ * comando que remove uma coluna de uma tabela
+ * 
+ * <p>sintaxe:
+ * <pre>{@code
+ * ALTERAR TABELA <nome_tabela> REMOVER COLUNA <nome_coluna>
+ * }</pre>
+ * 
+ * <p> implementa a interface {@link Comando}
+ * 
  * @author Nicolas Gabriel Venâncio dos Santos
  * @version 1.0
- * 
- * sintaxe: ALTERAR <nome_tabela> REMOVER COLUNA <nome_coluna>
- * este comando remove uma coluna da tabela escolhida
- * 
- * implementa a interface {@link Comando}
+ * @see Comando
  */
 public class RemoverColuna implements Comando{
 	/* 
@@ -16,7 +20,11 @@ public class RemoverColuna implements Comando{
 	 * private: impede o acesso de outros arquivos
 	 * final: impede a reatribuição do valor
 	 */
+	
+	/** nome da tabela */
     private final String tabela;
+    
+    /** nome da coluna */
     private final String nomeColuna;
     
     /**
@@ -46,10 +54,10 @@ public class RemoverColuna implements Comando{
     }
 
     /**
-     * retorna uma representação no formato String do objeto final do RemoverColuna
+     * retorna uma representação no formato String o comando RemoverColuna
      * formato: "RemoverColuna[tabela=" + tabela + ", coluna=" + nomeColuna + "]"
      * 
-     * @return representação em forma de texto do objeto
+     * @return representação em forma de texto do comando
      */
     @Override
     public String toString() {

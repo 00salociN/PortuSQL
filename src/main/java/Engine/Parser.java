@@ -29,8 +29,8 @@ public class Parser {
 			return parserAtualizar();
 		case"EXCLUIR":
 			return parserExcluir();
-//		case"DELETAR":
-//			return parserDeletar();
+		case"DELETAR":
+			return parserDeletar();
 		case"ALTERAR":
 			return parserAlterarTabela();
 		case"ESVAZIAR":
@@ -163,7 +163,15 @@ public class Parser {
 				throw new ErroParser("Esperava TABELA ou BANCO DE DADOS", proximo.getLinha(), proximo.getColuna());
 			
 		}
-	}		
+	}	
+	
+	private Deletar parserDeletar() {
+		esperarLexema("DELETAR");
+		esperarLexema("DE");
+		String tabela = esperarIdentificador();
+		String condicao = parserCondicao();
+		return new Deletar(tabela, condicao);
+	}
 	
 	private UsarBancoDados parserUsarBancoDados() {
 		esperarLexema("USAR");
@@ -180,10 +188,24 @@ public class Parser {
 		String nomeTabela = esperarIdentificador();
 		return new EsvaziarDadosTabela(nomeTabela);
 	}
-	private Mostrar parserMostrar() {
+	private Comando parserMostrar() {
 		esperarLexema("MOSTRAR");
-		String alvo = esperarIdentificador();
-		return new Mostrar(alvo);
+		Token proximo = tokenAtual();
+		switch(proximo.getLexema().toUpperCase()) {
+		case "TABELA":
+			avancar();
+			String tabela = esperarIdentificador();
+			return new MostrarTabela(tabela);
+			
+		case "COLUNA":
+			avancar();
+			String coluna = esperarIdentificador();
+			esperarLexema("DE");
+			String tabelacol = esperarIdentificador();
+			return new MostrarColuna(coluna, tabelacol);
+		default:
+			throw new ErroParser("Esperava uma TABELA ou COLUNA após o mostrar", proximo.getLinha(), proximo.getColuna());
+		}
 	}
 	private Comando parserAlterarTabela() {
 		esperarLexema("ALTERAR");
