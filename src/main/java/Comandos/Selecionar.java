@@ -43,15 +43,15 @@ public class Selecionar implements Comando{
      * @param tabela nome da tabela consultada
      * @param colunas colunas desejadas
      * @param condicao condicao da consulta (opcional)
-     * @param ordernarPor lista de colunas do agrupamento (AGRUPAR POR), opcional
-     * @param agruparPor lista de colunas da ordenacao (ORDENAR POR), opcional
+     * @param agruparPor lista de colunas do agrupamento (AGRUPAR POR), opcional
+     * @param ordenarPor lista de colunas da ordenacao (ORDENAR POR), opcional
      */
-    public Selecionar(String tabela, List<String> colunas, String condicao, List<String> ordernarPor, List<String> agruparPor) {
+    public Selecionar(String tabela, List<String> colunas, String condicao, List<String> agruparPor, List<String> ordenarPor) {
         this.tabela = tabela;
         this.colunas = colunas;
         this.condicao = condicao;
         this.agruparPor = agruparPor;
-        this.ordenarPor = ordernarPor;
+        this.ordenarPor = ordenarPor;
     }
 
     /**

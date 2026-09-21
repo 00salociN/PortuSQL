@@ -29,10 +29,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * classe -> Run As -> Java Application) para ver o AST e o SQL de cada
  * comando impressos no console, exatamente como antes.
  *
- * <p>observacao: como o objetivo e travar o comportamento atual, alguns
- * testes armazenam o SQL exatamente como produzido hoje, inclusive falhas ja
- * conhecidas do tradutor (ex.: valores de texto sem aspas, espacos faltando
- * em ALTERAR COLUNA/REMOVER COLUNA e a troca das listas AGRUPAR POR/ORDENAR POR).
+ * <p>observacao: apos as correcoes do motor, os testes passam a conferir o SQL
+ * correto (valores de texto com aspas, espacos entre palavras e comandos
+ * que antes falhavam: RENOMEAR RESTRICAO e ADICIONAR RESTRICAO ... VERIFICAR).
  *
  * @author Nicolas Gabriel Venâncio dos Santos
  * @version 1.0
@@ -64,7 +63,7 @@ public class TesteCompleto {
 
     @Test
     void selecionarComCondicaoTraduzEAndLike() {
-        assertEquals("Select * from alunos where idade > 18 AND status LIKE ativo;",
+        assertEquals("Select * from alunos where idade > 18 AND status LIKE 'ativo';",
                 sql("SELECIONAR * DE alunos ONDE idade > 18 E status PARECIDO COM 'ativo'"));
     }
 
@@ -75,8 +74,14 @@ public class TesteCompleto {
     }
 
     @Test
+    void condicaoNaoTraduzPalavrasDentroDeTexto() {
+        assertEquals("Select * from alunos where nome = 'Pedro E Ana';",
+                sql("SELECIONAR * DE alunos ONDE nome = 'Pedro E Ana'"));
+    }
+
+    @Test
     void selecionarAgrupandoEOrdenando() {
-        assertEquals("Select cidade from alunos group bycidade order by cidade;",
+        assertEquals("Select cidade from alunos group by cidade order by cidade;",
                 sql("SELECIONAR cidade DE alunos AGRUPAR POR cidade ORDENAR POR cidade"));
     }
 
@@ -119,14 +124,13 @@ public class TesteCompleto {
 
     @Test
     void inserirComListaDeColunas() {
-        // texto sem aspas no SQL: falha conhecida do tradutor
-        assertEquals("Insert Into alunos (nome, idade) Values (Joao, 20);",
+        assertEquals("Insert Into alunos (nome, idade) Values ('Joao', 20);",
                 sql("INSERIR (nome, idade) EM alunos VALORES ('Joao', 20)"));
     }
 
     @Test
     void inserirSemListaDeColunas() {
-        assertEquals("Insert Into alunos Values (1, Joao);",
+        assertEquals("Insert Into alunos Values (1, 'Joao');",
                 sql("INSERIR EM alunos VALORES (1, 'Joao')"));
     }
 
@@ -144,7 +148,7 @@ public class TesteCompleto {
 
     @Test
     void atualizarComCondicao() {
-        assertEquals("Update alunos Set idade = 21 where nome LIKE Joao;",
+        assertEquals("Update alunos Set idade = 21 where nome LIKE 'Joao';",
                 sql("atualizar alunos DEFINIR idade = 21 ONDE nome PARECIDO COM 'Joao'"));
     }
 
@@ -185,9 +189,7 @@ public class TesteCompleto {
 
     @Test
     void mostrarColuna() {
-        // o parser guarda a coluna no lugar do nome da tabela (e vice-versa):
-        // falha conhecida, travada aqui no SQL gerado
-        assertEquals("Select * From Information_Schema.Columns Where Table_Name = 'IDADE ' And Column_Name = 'ALUNOS';",
+        assertEquals("Select * From Information_Schema.Columns Where Table_Name = 'ALUNOS' And Column_Name = 'IDADE';",
                 sql("MOSTRAR COLUNA idade DE alunos"));
     }
 
@@ -197,21 +199,19 @@ public class TesteCompleto {
 
     @Test
     void adicionarColuna() {
-        assertEquals("Alter Table alunos Add Column     email text;",
+        assertEquals("Alter Table alunos Add Column email text;",
                 sql("ALTERAR TABELA alunos ADICIONAR COLUNA email texto"));
     }
 
     @Test
     void removerColuna() {
-        // espaco faltando entre a tabela e o Drop Column: falha conhecida do tradutor
-        assertEquals("Alter Table alunosDrop Column email;",
+        assertEquals("Alter Table alunos Drop Column email;",
                 sql("ALTERAR TABELA alunos REMOVER COLUNA email"));
     }
 
     @Test
     void alterarColuna() {
-        // espaco faltando entre a tabela e o Alter Column: falha conhecida do tradutor
-        assertEquals("Alter Tablealunos Alter Column idade decimal;",
+        assertEquals("Alter Table alunos Alter Column idade decimal;",
                 sql("ALTERAR TABELA alunos ALTERAR COLUNA idade decimal"));
     }
 
@@ -235,8 +235,7 @@ public class TesteCompleto {
 
     @Test
     void adicionarRestricaoChaveEstrangeira() {
-        // References usa a coluna referenciada no lugar da tabela: falha conhecida do tradutor
-        assertEquals("Alter Table alunos Add Constraint fk_turma foreign key (turma_id) References id(id);",
+        assertEquals("Alter Table alunos Add Constraint fk_turma foreign key (turma_id) References turmas(id);",
                 sql("ALTERAR TABELA alunos ADICIONAR RESTRICAO fk_turma turma_id chave estrangeira REFERENCIA turmas ( id )"));
     }
 
@@ -269,13 +268,12 @@ public class TesteCompleto {
     }
 
     @Test
-    void adicionarRestricaoVerificarMontaComandoSemTraducao() {
+    void adicionarRestricaoVerificar() {
         AdicionarRestricaoVerificar verificar = (AdicionarRestricaoVerificar) comando(
                 "ALTERAR TABELA alunos ADICIONAR RESTRICAO ck_idade VERIFICAR idade > 0");
         assertEquals("idade > 0", verificar.condicao());
-        IllegalArgumentException erro = assertThrows(IllegalArgumentException.class,
-                () -> sql("ALTERAR TABELA alunos ADICIONAR RESTRICAO ck_idade VERIFICAR idade > 0"));
-        assertTrue(erro.getMessage().contains("AdicionarRestricaoVerificar"));
+        assertEquals("Alter Table alunos Add Constraint ck_idade Check (idade > 0);",
+                sql("ALTERAR TABELA alunos ADICIONAR RESTRICAO ck_idade VERIFICAR idade > 0"));
     }
 
     // ------------------------------------------------
@@ -311,9 +309,9 @@ public class TesteCompleto {
     }
 
     @Test
-    void renomearRestricaoFalhaNoParser() {
-        assertThrows(ErroParser.class,
-                () -> comando("ALTERAR TABELA alunos RENOMEAR RESTRICAO fk_turma PARA fk_turma_aluno"));
+    void renomearRestricao() {
+        assertEquals("Alter Table alunos Rename Constraint fk_turma To fk_turma_aluno;",
+                sql("ALTERAR TABELA alunos RENOMEAR RESTRICAO fk_turma PARA fk_turma_aluno"));
     }
 
     @Test

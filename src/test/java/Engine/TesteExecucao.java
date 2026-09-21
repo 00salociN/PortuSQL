@@ -34,8 +34,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * console. o main tambem usa o banco dedicado de teste, recriado do zero a
  * cada execucao, entao o banco padrao (portusql) nunca e tocado.
  *
- * <p>observacao: o tradutor nao coloca aspas nos valores de texto, entao os
- * testes de INCLUIR usam apenas valores numericos (que executam sem erro).
+ * <p>observacao: a coluna NOME da tabela de testes so recebe valores de texto
+ * nas linhas em que o teste insere texto; os testes numericos a deixam como NULL.
  *
  * @author Nicolas Gabriel Venâncio dos Santos
  * @version 1.0
@@ -76,8 +76,7 @@ public class TesteExecucao {
     }
 
     /**
-     * popula a tabela com tres linhas; como o tradutor nao coloca aspas nos
-     * valores de texto, a coluna nome fica com NULL e so os numeros entram
+     * popula a tabela com tres linhas numericas (sem texto)
      */
     private static void popularTabelaAlunos() throws SQLException {
         executar("INSERIR (id, idade) EM alunos VALORES (1, 20)");
@@ -104,6 +103,14 @@ public class TesteExecucao {
         assertEquals(List.of(1, 20), resultado.getLinhas().get(0));
         assertEquals(List.of(2, 22), resultado.getLinhas().get(1));
         assertEquals(List.of(3, 18), resultado.getLinhas().get(2));
+    }
+
+    @Test
+    void inserirETrazerTextoComAspas() throws SQLException {
+        criarTabelaAlunos();
+        executar("INSERIR (id, nome, idade) EM alunos VALORES (1, 'Joao', 20)");
+        Resultado resultado = executar("SELECIONAR id, nome DE alunos ONDE nome = 'Joao'");
+        assertEquals(List.of(List.of(1, "Joao")), resultado.getLinhas());
     }
 
     @Test
@@ -195,8 +202,7 @@ public class TesteExecucao {
             // ---- CRIAR TABELA ------------------------------------------
             testar("CRIAR TABELA alunos ( id inteiro CHAVE PRIMARIA, nome texto, idade inteiro )");
 
-            // INSERIR com valor de texto: falha conhecida do tradutor
-            // (nao coloca aspas no valor, entao o H2 rejeita)
+            // INSERIR com valor de texto: o tradutor agora preserva as aspas
             testar("INSERIR (id, nome, idade) EM alunos VALORES (1, 'Joao', 20)");
 
             // INSERIR com apenas valores numericos: funciona normalmente

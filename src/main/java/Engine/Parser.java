@@ -184,9 +184,13 @@ public class Parser {
 	 */
 	private String esperarValor() {
 		Token atual = tokenAtual();
-		if(atual.getTipo() == TipoToken.numerico || atual.getTipo() == TipoToken.texto) {
+		if(atual.getTipo() == TipoToken.numerico) {
 			avancar();
 			return atual.getLexema();
+		}
+		if(atual.getTipo() == TipoToken.texto) {
+			avancar();
+			return "'" + atual.getLexema() + "'";
 		}
 		throw new ErroParser("Era esperado um valor (numerico ou texto), mas não foi encontrado '" + atual.getLexema() + "'", atual.getLinha(), atual.getColuna());
 		
@@ -301,7 +305,7 @@ public class Parser {
 			String coluna = esperarIdentificador();
 			esperarLexema("DE");
 			String tabelacol = esperarIdentificador();
-			return new MostrarColuna(coluna, tabelacol);
+			return new MostrarColuna(tabelacol, coluna);
 		default:
 			throw new ErroParser("Esperava uma TABELA ou COLUNA após o mostrar", proximo.getLinha(), proximo.getColuna());
 		}
@@ -415,6 +419,7 @@ public class Parser {
 			return new RenomearColuna(tabela, nomeAntigo, nomeNovo);
 		}
 		if(proximo.getLexema().equalsIgnoreCase("RESTRICAO")) {
+			avancar();
 			String nomeAntigo = esperarIdentificador();
 			esperarLexema("PARA");
 			String nomeNovo = esperarIdentificador();
@@ -448,7 +453,12 @@ public class Parser {
 	private String capturaTexto() {
 		StringBuilder texto = new StringBuilder();
 		while(tokenAtual().getTipo() != TipoToken.fim) {
-			texto.append(tokenAtual().getLexema()).append(" ");
+			if(tokenAtual().getTipo() == TipoToken.texto) {
+				// valores de texto voltam com aspas, para o SQL gerado ficar valido
+				texto.append("'").append(tokenAtual().getLexema()).append("' ");
+			} else {
+				texto.append(tokenAtual().getLexema()).append(" ");
+			}
 			avancar();
 		}
 		return texto.toString().trim();

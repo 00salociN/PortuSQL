@@ -72,6 +72,7 @@ public class Tradutor {
         public Tradutor() {
             traducao.put(AdicionarColuna.class, comando -> traducaoAdicionarColuna((AdicionarColuna) comando));
             traducao.put(AdicionarRestricao.class, comando -> traducaoAdicionarRestricao((AdicionarRestricao) comando));
+            traducao.put(AdicionarRestricaoVerificar.class, comando -> traducaoAdicionarRestricaoVerificar((AdicionarRestricaoVerificar) comando));
             traducao.put(AlterarColuna.class, comando -> traducaoAlterarColuna((AlterarColuna) comando));
             traducao.put(Atualizar.class, comando -> traducaoAtualizar((Atualizar) comando));
             traducao.put(CriarTabela.class, comando -> traducaoCriarTabela((CriarTabela) comando));
@@ -125,10 +126,20 @@ public class Tradutor {
         	banco.append(" (").append(restricao.getColuna()).append(")");
         	if(restricao.getTabelaReferenciada() != null) {
         		banco.append(" References ");
-        		banco.append(restricao.getColunaReferenciada());
+        		banco.append(restricao.getTabelaReferenciada());
         		banco.append("(").append(restricao.getColunaReferenciada()).append(")");
         	}
         	banco.append(";");
+        	return banco.toString();
+        }
+        private String traducaoAdicionarRestricaoVerificar(AdicionarRestricaoVerificar verificar) {
+        	banco = new StringBuilder("Alter Table ");
+        	banco.append(verificar.getTabela());
+        	banco.append(" Add Constraint ");
+        	banco.append(verificar.getNomeRestricao());
+        	banco.append(" Check (");
+        	banco.append(traducaoCondicao(verificar.condicao()));
+        	banco.append(");");
         	return banco.toString();
         }
         private String traducaoAtualizar(Atualizar atualizar) {
@@ -150,7 +161,7 @@ public class Tradutor {
         	if(tipoSql == null) {
         		throw new IllegalArgumentException("Tipo de dado não encontrado: " + coluna.getNovoTipoDado());
         	}
-        	banco = new StringBuilder("Alter Table");
+        	banco = new StringBuilder("Alter Table ");
         	banco.append(coluna.getTabela());
         	banco.append(" Alter Column ");
         	banco.append(coluna.getNomeColuna());
@@ -203,7 +214,7 @@ public class Tradutor {
         private String traducaoMostrarColuna(MostrarColuna mostrar) {
         	banco = new StringBuilder("Select * From Information_Schema.Columns Where Table_Name = '");
         	banco.append(mostrar.getNomeTabela().toUpperCase());
-        	banco.append(" ' And Column_Name = '");
+        	banco.append("' And Column_Name = '");
         	banco.append(mostrar.getNomeColuna().toUpperCase());
         	banco.append("';");
         	return banco.toString();
@@ -211,7 +222,7 @@ public class Tradutor {
         private String traducaoRemoverColuna(RemoverColuna remover) {
         	banco = new StringBuilder("Alter Table ");
         	banco.append(remover.getTabela());
-        	banco.append("Drop Column ");
+        	banco.append(" Drop Column ");
         	banco.append(remover.getNomeColuna());
         	banco.append(";");
         	return banco.toString();
@@ -269,7 +280,7 @@ public class Tradutor {
                 banco.append(" where ").append(traducaoCondicao(selecionar.getCondicao()));
             }
             if(selecionar.getAgruparPor() != null && !selecionar.getAgruparPor().isEmpty()) {
-            	banco.append(" group by").append(String.join(", ", selecionar.getAgruparPor()));
+            	banco.append(" group by ").append(String.join(", ", selecionar.getAgruparPor()));
             }
             if(selecionar.getOrdenarPor() != null && !selecionar.getOrdenarPor().isEmpty()) {
             	banco.append(" order by ").append(String.join(", ", selecionar.getOrdenarPor()));
@@ -279,11 +290,28 @@ public class Tradutor {
         }
         
         private String traducaoCondicao(String condicao){
+            // traduz as palavras-chave apenas FORA de trechos entre aspas,
+            // para nao corromper valores de texto (ex.: nome = 'Pedro E Ana')
+            StringBuilder resultado = new StringBuilder();
+            String[] partes = condicao.split("'", -1);
+            for (int i = 0; i < partes.length; i++) {
+                if (i % 2 == 0) {
+                    partes[i] = traduzirCondicaoSemAspas(partes[i]);
+                }
+                resultado.append(partes[i]);
+                if (i < partes.length - 1) {
+                    resultado.append("'");
+                }
+            }
+            return resultado.toString();
+        }
+
+        private String traduzirCondicaoSemAspas(String condicao){
             String resultado = condicao;
+            resultado = resultado.replaceAll("(?i)PARECIDO COM", "LIKE");
             resultado = resultado.replaceAll("(?i)\\bE\\b", "AND");
             resultado = resultado.replaceAll("(?i)\\bOU\\b", "OR");
             resultado = resultado.replaceAll("(?i)\\bNAO\\b", "NOT");
-            resultado = resultado.replaceAll("(?i)PARECIDO COM", "LIKE");
             return resultado;
         }
 
@@ -294,7 +322,7 @@ public class Tradutor {
             banco = new StringBuilder("Create Table ");
             banco.append(criartabela.getNomeTabela()).append(" (\n");
             List<String> definicoes = criartabela.getColunas().stream()
-                    .map(this::traducaoDefinicaoColuna)
+                    .map(coluna -> "    " + traducaoDefinicaoColuna(coluna))
                     .collect(Collectors.toList());
             banco.append(String.join(",\n", definicoes));
             banco.append("\n);");
@@ -307,7 +335,7 @@ public class Tradutor {
                 throw new IllegalArgumentException(
                 "Tipo de dado não encontradi" + coluna.getTipoDado());
             }
-            StringBuilder definicao = new StringBuilder("    ")
+            StringBuilder definicao = new StringBuilder()
                     .append(coluna.getNome())
                     .append(" ")
                     .append(tipoSql);
