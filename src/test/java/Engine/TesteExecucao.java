@@ -114,6 +114,16 @@ public class TesteExecucao {
     }
 
     @Test
+    void colunaNaoNuloBloqueiaValorNulo() throws SQLException {
+        executar("CRIAR TABELA alunos ( id inteiro CHAVE PRIMARIA, nome texto NAO NULO )");
+        assertThrows(SQLException.class,
+                () -> executar("INSERIR (id, nome) EM alunos VALORES (1, nulo)"));
+        executar("INSERIR (id, nome) EM alunos VALORES (1, 'Joao')");
+        Resultado resultado = executar("SELECIONAR nome DE alunos ONDE id = 1");
+        assertEquals(List.of(List.of("Joao")), resultado.getLinhas());
+    }
+
+    @Test
     void selecionarComCondicaoFiltraLinhas() throws SQLException {
         criarTabelaAlunos();
         popularTabelaAlunos();

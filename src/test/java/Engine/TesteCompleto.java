@@ -106,6 +106,15 @@ public class TesteCompleto {
     }
 
     @Test
+    void criarTabelaComColunaNaoNulo() {
+        assertEquals("Create Table alunos (\n"
+                + "    id int Primary Key,\n"
+                + "    nome text Not Null\n"
+                + ");",
+                sql("CRIAR TABELA alunos ( id inteiro CHAVE PRIMARIA, nome texto nao nulo )"));
+    }
+
+    @Test
     void criarTabelaMontaDefinicoesDasColunas() {
         CriarTabela criar = (CriarTabela) comando(
                 "CRIAR TABELA alunos ( id inteiro CHAVE PRIMARIA, nome texto )");
@@ -142,6 +151,12 @@ public class TesteCompleto {
         assertEquals(List.of("1", "20"), inserir.getValores());
     }
 
+    @Test
+    void inserirComValorNulo() {
+        assertEquals("Insert Into alunos (nome, telefone) Values ('Joao', null);",
+                sql("INSERIR (nome, telefone) EM alunos VALORES ('Joao', nulo)"));
+    }
+
     // ------------------------------------------------
     // ATUALIZAR
     // ------------------------------------------------
@@ -156,6 +171,12 @@ public class TesteCompleto {
     void atualizarTabelaInteiraSemCondicao() {
         assertEquals("Update alunos Set idade = 10;",
                 sql("atualizar alunos DEFINIR idade = 10"));
+    }
+
+    @Test
+    void atualizarComValorNulo() {
+        assertEquals("Update alunos Set telefone = null;",
+                sql("atualizar alunos DEFINIR telefone = nulo"));
     }
 
     // ------------------------------------------------
