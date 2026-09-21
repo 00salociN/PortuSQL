@@ -3,7 +3,12 @@ package Conexao;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * camada de conexao com o banco H2 embarcado do PortuSQL.
@@ -46,6 +51,14 @@ public class Conexao {
      */
     public static String caminhoBanco(String nomeBanco) {
     	return PASTA_BASE + File.separator + nomeBanco;
+    }
+
+    /**
+     * retorna a pasta onde os bancos do PortuSQL ficam guardados
+     * @return caminho completo da pasta base (~/.portusql)
+     */
+    public static String getPastaBase() {
+    	return PASTA_BASE;
     }
 
     /**
@@ -119,6 +132,47 @@ public class Conexao {
     		arquivoTrace.delete();
     	}
     	return apagouPrincipal;
+    }
+
+    /**
+     * lista os bancos existentes na pasta base (~/.portusql), em ordem
+     * alfabetica. apenas le o diretorio -- nao abre nem cria conexoes.
+     * @return nomes dos bancos encontrados
+     */
+    public static List<String> listarBancos() {
+    	List<String> bancos = new ArrayList<>();
+    	File pasta = new File(PASTA_BASE);
+    	File[] arquivos = pasta.listFiles((dir, nome) -> nome.endsWith(".mv.db"));
+    	if (arquivos != null) {
+    		for (File arquivo : arquivos) {
+    			String nome = arquivo.getName();
+    			bancos.add(nome.substring(0, nome.length() - ".mv.db".length()));
+    		}
+    		Collections.sort(bancos);
+    	}
+    	return bancos;
+    }
+
+    /**
+     * lista as tabelas (esquema PUBLIC) de um banco. abre a conexao com o
+     * banco informado, ou seja: listar as tabelas tambem deixa esse banco
+     * como o banco em uso.
+     * @param nomeBanco nome do banco
+     * @return nomes das tabelas em ordem alfabetica
+     * @throws SQLException se nao for possivel conectar ou consultar
+     */
+    public static List<String> listarTabelas(String nomeBanco) throws SQLException {
+    	List<String> tabelas = new ArrayList<>();
+    	Connection conexao = obterConexao(nomeBanco);
+    	try (Statement comando = conexao.createStatement();
+    		 ResultSet resultado = comando.executeQuery(
+    		         "select table_name from information_schema.tables "
+    		         + "where table_schema = 'PUBLIC' order by table_name")) {
+    		while (resultado.next()) {
+    			tabelas.add(resultado.getString(1));
+    		}
+    	}
+    	return tabelas;
     }
     
   
