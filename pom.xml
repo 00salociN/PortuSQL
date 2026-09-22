@@ -60,6 +60,7 @@
     </dependencies>
 
     <build>
+<<<<<<< HEAD
         <!-- garante que arquivos de recurso em src/main/java (ex.: a
              pasta Imagens, com a logo da Homepage) tambem sejam copiados
              para target/classes nos builds feitos por linha de comando -->
@@ -74,6 +75,9 @@
                 </excludes>
             </resource>
         </resources>
+=======
+        <finalName>PortuSQL</finalName>
+>>>>>>> main
         <pluginManagement>
             <plugins>
 
@@ -124,6 +128,43 @@
 
             </plugins>
         </pluginManagement>
+
+        <plugins>
+
+            <!-- empacota um jar executavel com todas as dependencias (H2) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>PortuSQL.PortuSQL.App</mainClass>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
     </build>
 
 </project>

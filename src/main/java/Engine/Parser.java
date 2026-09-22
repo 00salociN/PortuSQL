@@ -192,7 +192,11 @@ public class Parser {
 			avancar();
 			return "'" + atual.getLexema() + "'";
 		}
-		throw new ErroParser("Era esperado um valor (numerico ou texto), mas não foi encontrado '" + atual.getLexema() + "'", atual.getLinha(), atual.getColuna());
+		if(atual.getTipo() == TipoToken.nulo) {
+			avancar();
+			return "null";
+		}
+		throw new ErroParser("Era esperado um valor (numerico, texto ou nulo), mas não foi encontrado '" + atual.getLexema() + "'", atual.getLinha(), atual.getColuna());
 		
 	}
 
@@ -500,7 +504,15 @@ public class Parser {
 	 */
 	private void esperarLexema(String lexemaEsperado) {
 		Token atual = tokenAtual();
-		if(atual.getTipo() != TipoToken.palavra_chave || !atual.getLexema().equalsIgnoreCase(lexemaEsperado)) {
+		boolean corresponde;
+		if(lexemaEsperado.equalsIgnoreCase("NULO")) {
+			// NULO tem tipo de token proprio no Lexer (TipoToken.nulo)
+			corresponde = atual.getTipo() == TipoToken.nulo
+					|| (atual.getTipo() == TipoToken.palavra_chave && atual.getLexema().equalsIgnoreCase("NULO"));
+		} else {
+			corresponde = atual.getTipo() == TipoToken.palavra_chave && atual.getLexema().equalsIgnoreCase(lexemaEsperado);
+		}
+		if(!corresponde) {
 			throw new ErroParser("Esperava '" + lexemaEsperado + "', mas encontrei '" + atual.getLexema() + "'", atual.getLinha(), atual.getColuna());
 		}
 		avancar();
