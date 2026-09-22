@@ -2,23 +2,27 @@ package Telas;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 
+import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 /**
  * Tela inicial (Homepage) do PortuSQL: barra lateral de navegacao,
- * breadcrumb, cabecalho de boas-vindas com a logo colorida, dois
+ * cabecalho com a logo do PortuSQL (imagem da pasta Imagens), dois
  * cards de acao principais e quatro cards secundarios de apoio.
  *
  * A logica de navegacao real (trocar de tela ao clicar em cada
@@ -34,15 +38,16 @@ public class HomePanel extends JPanel {
 
     // Paleta de cores do tema escuro, baseada na tela de referencia.
     private static final Color COR_FUNDO_PRINCIPAL = new Color(0x1E, 0x1E, 0x1E);
-    private static final Color COR_TEXTO_TITULO = new Color(0xF5, 0xF5, 0xF5);
-    private static final Color COR_TEXTO_DESCRICAO = new Color(0xA0, 0xA0, 0xA0);
-    private static final Color COR_TEXTO_BREADCRUMB = new Color(0x90, 0x90, 0x90);
 
     // Cores dos icones dos cards, cada uma reaproveitando um tom
     // parecido com o logo do PortuSQL.
     private static final Color COR_VERDE = new Color(0x2E, 0xCC, 0x71);
     private static final Color COR_AZUL = new Color(0x34, 0x98, 0xDB);
     private static final Color COR_LARANJA = new Color(0xE6, 0x7E, 0x22);
+
+    // Logo da Homepage: imagem da pasta Imagens, carregada do classpath.
+    private static final String CAMINHO_LOGO = "/Imagens/Design sem nome(2).png";
+    private static final int ALTURA_LOGO = 170;
 
     private final HomePanelListener listener;
 
@@ -57,18 +62,16 @@ public class HomePanel extends JPanel {
     }
 
     // ------------------------------------------------------------------
-    // Area de conteudo (breadcrumb + boas-vindas + cards)
+    // Area de conteudo (cabecalho com a logo + cards)
     // ------------------------------------------------------------------
 
     private JPanel criarAreaConteudo() {
         JPanel conteudo = new JPanel();
         conteudo.setBackground(COR_FUNDO_PRINCIPAL);
         conteudo.setLayout(new BoxLayout(conteudo, BoxLayout.Y_AXIS));
-        conteudo.setBorder(new EmptyBorder(0, 32, 24, 32));
+        conteudo.setBorder(new EmptyBorder(8, 24, 24, 32));
 
-        conteudo.add(criarBreadcrumb());
-        conteudo.add(Box.createVerticalStrut(24));
-        conteudo.add(criarCabecalhoBoasVindas());
+        conteudo.add(criarCabecalho());
         conteudo.add(Box.createVerticalStrut(24));
         conteudo.add(criarLinhaCardsPrincipais());
         conteudo.add(Box.createVerticalStrut(16));
@@ -78,75 +81,62 @@ public class HomePanel extends JPanel {
         return conteudo;
     }
 
-    private JPanel criarBreadcrumb() {
-        JPanel painel = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 12));
-        painel.setBackground(COR_FUNDO_PRINCIPAL);
-        painel.setAlignmentX(LEFT_ALIGNMENT);
-
-        JLabel inicio = new JLabel("\u2302 In\u00edcio");
-        inicio.setForeground(new Color(0x5D, 0xAD, 0xE2));
-        inicio.setFont(new Font("SansSerif", Font.BOLD, 12));
-        inicio.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        inicio.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                disparar(listener != null ? listener::aoClicarInicio : null);
-            }
-        });
-
-        JLabel separador = new JLabel(">");
-        separador.setForeground(COR_TEXTO_BREADCRUMB);
-
-        JLabel bancos = new JLabel("\uD83D\uDDC4 Bancos");
-        bancos.setForeground(Color.WHITE);
-        bancos.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        bancos.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        bancos.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                disparar(listener != null ? listener::aoClicarBancos : null);
-            }
-        });
-
-        painel.add(inicio);
-        painel.add(separador);
-        painel.add(bancos);
-        return painel;
-    }
-
-    private JPanel criarCabecalhoBoasVindas() {
+    private JPanel criarCabecalho() {
         JPanel painel = new JPanel();
         painel.setLayout(new BoxLayout(painel, BoxLayout.Y_AXIS));
         painel.setBackground(COR_FUNDO_PRINCIPAL);
         painel.setAlignmentX(LEFT_ALIGNMENT);
 
-        JLabel bemVindos = new JLabel("Bem-vindos");
-        bemVindos.setForeground(COR_TEXTO_TITULO);
-        bemVindos.setFont(new Font("SansSerif", Font.BOLD, 30));
-        bemVindos.setAlignmentX(LEFT_ALIGNMENT);
+        JComponent logo = criarLogo();
+        logo.setAlignmentX(LEFT_ALIGNMENT);
+
+        painel.add(logo);
+        return painel;
+    }
+
+    /**
+     * Logo do PortuSQL: usa a imagem da pasta {@code Imagens} quando
+     * disponivel no classpath, com altura fixa e proporcao preservada.
+     * Se o recurso nao puder ser carregado, cai para o logo em texto
+     * colorido (mesmas cores de antes).
+     */
+    private JComponent criarLogo() {
+        ImageIcon icone = carregarIconeLogo();
+        if (icone != null) {
+            return new JLabel(icone);
+        }
 
         JPanel logoLinha = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 4));
         logoLinha.setBackground(COR_FUNDO_PRINCIPAL);
-        logoLinha.setAlignmentX(LEFT_ALIGNMENT);
         logoLinha.add(criarPedacoLogo("Portu", COR_VERDE));
         logoLinha.add(criarPedacoLogo("S", COR_LARANJA));
         logoLinha.add(criarPedacoLogo("Q", COR_AZUL));
         logoLinha.add(criarPedacoLogo("L", COR_VERDE));
+        return logoLinha;
+    }
 
-        JLabel descricao = new JLabel("<html><body style='width:640px'>"
-                + "PortuSQL \u00e9 uma ferramenta pensada para estudantes: traz a sintaxe SQL para "
-                + "perto do portugu\u00eas, tornando a aprendizagem mais natural e intuitiva. Explore "
-                + "consultas, crie bancos e pratique comandos de forma clara e organizada."
-                + "</body></html>");
-        descricao.setForeground(COR_TEXTO_DESCRICAO);
-        descricao.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        descricao.setAlignmentX(LEFT_ALIGNMENT);
-        descricao.setBorder(new EmptyBorder(8, 0, 0, 0));
-
-        painel.add(bemVindos);
-        painel.add(logoLinha);
-        painel.add(descricao);
-        return painel;
+    /**
+     * Carrega a logo da pasta Imagens e a redimensiona para caber no
+     * cabecalho. Retorna {@code null} se o arquivo nao existir no
+     * classpath ou nao puder ser decodificado.
+     */
+    private ImageIcon carregarIconeLogo() {
+        try (InputStream entrada = HomePanel.class.getResourceAsStream(CAMINHO_LOGO)) {
+            if (entrada == null) {
+                return null;
+            }
+            BufferedImage original = ImageIO.read(entrada);
+            if (original == null || original.getWidth() <= 0 || original.getHeight() <= 0) {
+                return null;
+            }
+            int largura = Math.round(original.getWidth()
+                    * ((float) ALTURA_LOGO / original.getHeight()));
+            Image redimensionada = original.getScaledInstance(
+                    largura, ALTURA_LOGO, Image.SCALE_SMOOTH);
+            return new ImageIcon(redimensionada);
+        } catch (IOException erro) {
+            return null;
+        }
     }
 
     private JLabel criarPedacoLogo(String texto, Color cor) {

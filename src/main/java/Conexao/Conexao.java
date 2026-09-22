@@ -3,6 +3,7 @@ package Conexao;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -158,21 +159,142 @@ public class Conexao {
      * banco informado, ou seja: listar as tabelas tambem deixa esse banco
      * como o banco em uso.
      * @param nomeBanco nome do banco
-     * @return nomes das tabelas em ordem alfabetica
+     * @return nomes das tabelas em ordem alfabetica (somente tabelas, sem visoes)
      * @throws SQLException se nao for possivel conectar ou consultar
      */
     public static List<String> listarTabelas(String nomeBanco) throws SQLException {
-    	List<String> tabelas = new ArrayList<>();
+    	return listarObjetos(nomeBanco,
+    	        "select table_name from information_schema.tables "
+    	        + "where table_schema = 'PUBLIC' and table_type = 'BASE TABLE' "
+    	        + "order by table_name");
+    }
+
+    /**
+     * lista as visoes (esquema PUBLIC) de um banco.
+     * @param nomeBanco nome do banco
+     * @return nomes das visoes em ordem alfabetica
+     * @throws SQLException se nao for possivel conectar ou consultar
+     */
+    public static List<String> listarVisoes(String nomeBanco) throws SQLException {
+    	return listarObjetos(nomeBanco,
+    	        "select table_name from information_schema.views "
+    	        + "where table_schema = 'PUBLIC' order by table_name");
+    }
+
+    /**
+     * lista as funcoes definidas pelo usuario (esquema PUBLIC) de um banco.
+     * @param nomeBanco nome do banco
+     * @return nomes das funcoes em ordem alfabetica
+     * @throws SQLException se nao for possivel conectar ou consultar
+     */
+    public static List<String> listarFuncoes(String nomeBanco) throws SQLException {
+    	return listarObjetos(nomeBanco,
+    	        "select routine_name from information_schema.routines "
+    	        + "where routine_schema = 'PUBLIC' order by routine_name");
+    }
+
+    /**
+     * lista os gatilhos (esquema PUBLIC) de um banco.
+     * @param nomeBanco nome do banco
+     * @return nomes dos gatilhos em ordem alfabetica
+     * @throws SQLException se nao for possivel conectar ou consultar
+     */
+    public static List<String> listarGatilhos(String nomeBanco) throws SQLException {
+    	return listarObjetos(nomeBanco,
+    	        "select trigger_name from information_schema.triggers "
+    	        + "where trigger_schema = 'PUBLIC' order by trigger_name");
+    }
+
+    /**
+     * executa uma consulta que devolve nomes na primeira coluna.
+     * @param nomeBanco nome do banco
+     * @param consulta SQL que retorna os nomes (primeira coluna)
+     * @return nomes encontrados, em ordem alfabetica
+     * @throws SQLException se nao for possivel conectar ou consultar
+     */
+    private static List<String> listarObjetos(String nomeBanco, String consulta) throws SQLException {
+    	List<String> nomes = new ArrayList<>();
     	Connection conexao = obterConexao(nomeBanco);
     	try (Statement comando = conexao.createStatement();
-    		 ResultSet resultado = comando.executeQuery(
-    		         "select table_name from information_schema.tables "
-    		         + "where table_schema = 'PUBLIC' order by table_name")) {
+    		 ResultSet resultado = comando.executeQuery(consulta)) {
     		while (resultado.next()) {
-    			tabelas.add(resultado.getString(1));
+    			nomes.add(resultado.getString(1));
     		}
     	}
-    	return tabelas;
+    	return nomes;
+    }
+
+    /**
+     * lista os campos de uma tabela ou visao (esquema PUBLIC) de um banco,
+     * ja formatados como {@code nome tipo} na lingua do PortuSQL
+     * (ex.: {@code id inteiro}, {@code nome texto}).
+     * @param nomeBanco nome do banco
+     * @param objeto nome da tabela ou visao
+     * @return campos na ordem em que foram definidos
+     * @throws SQLException se nao for possivel conectar ou consultar
+     */
+    public static List<String> listarColunas(String nomeBanco, String objeto) throws SQLException {
+    	List<String> colunas = new ArrayList<>();
+    	Connection conexao = obterConexao(nomeBanco);
+    	try (PreparedStatement comando = conexao.prepareStatement(
+    	        "select column_name, data_type from information_schema.columns "
+    	        + "where table_schema = 'PUBLIC' and upper(table_name) = upper(?) "
+    	        + "order by ordinal_position")) {
+    		comando.setString(1, objeto);
+    		try (ResultSet resultado = comando.executeQuery()) {
+    			while (resultado.next()) {
+    				colunas.add(resultado.getString(1) + " " + traduzirTipo(resultado.getString(2)));
+    			}
+    		}
+    	}
+    	return colunas;
+    }
+
+    /**
+     * traduz o tipo reportado pelo H2 para o nome em portugues usado no
+     * PortuSQL; tipos sem traducao voltam com o nome que o proprio H2 devolve.
+     * @param tipoH2 tipo como o H2 reporta em INFORMATION_SCHEMA.COLUMNS
+     * @return nome do tipo em portugues (ou o tipo original)
+     */
+    private static String traduzirTipo(String tipoH2) {
+    	if (tipoH2 == null) {
+    		return "";
+    	}
+    	switch (tipoH2) {
+    		case "INTEGER":
+    		case "INT":
+    			return "inteiro";
+    		case "CHARACTER VARYING":
+    		case "VARCHAR":
+    		case "CHARACTER LARGE OBJECT":
+    		case "CLOB":
+    		case "TEXT":
+    			return "texto";
+    		case "DECIMAL":
+    		case "NUMERIC":
+    			return "decimal";
+    		case "DATE":
+    			return "data";
+    		case "TIME":
+    			return "hora";
+    		case "TIMESTAMP":
+    			return "data_hora";
+    		case "BOOLEAN":
+    			return "booleano";
+    		case "DOUBLE PRECISION":
+    		case "DOUBLE":
+    			return "flutuante";
+    		case "REAL":
+    			return "real";
+    		case "VARBINARY":
+    		case "BINARY":
+    		case "BLOB":
+    			return "binario";
+    		case "ENUM":
+    			return "enum";
+    		default:
+    			return tipoH2;
+    	}
     }
     
   

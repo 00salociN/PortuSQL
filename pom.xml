@@ -60,6 +60,20 @@
     </dependencies>
 
     <build>
+        <!-- garante que arquivos de recurso em src/main/java (ex.: a
+             pasta Imagens, com a logo da Homepage) tambem sejam copiados
+             para target/classes nos builds feitos por linha de comando -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/main/java</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <pluginManagement>
             <plugins>
 

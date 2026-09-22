@@ -66,8 +66,8 @@ import Conexao.Conexao;
 /**
  * Tela principal do editor de consultas do PortuSQL: barra de menu,
  * barra de ferramentas (Executar/Execução única/Parar/Salvar/
- * Histórico), navegador de bancos em árvore (com as tabelas carregadas
- * sob demanda), abas de editor SQL com realce de sintaxe leve,
+ * Histórico), navegador de bancos em árvore (com as pastas de tabelas,
+ * visões, funções e gatilhos carregadas sob demanda), abas de editor SQL com realce de sintaxe leve,
  * numeração de linha e atalhos (Ctrl+Enter, F5, F6), e painel de
  * resultados/mensagens na parte inferior.
  *
@@ -132,6 +132,15 @@ public class IdePanel extends JPanel {
 
     /** contador usado para nomear os arquivos novos do menu Arquivo */
     private int proximoArquivo = 1;
+
+    /** rotulo dos nos-pasta do navegador de bancos */
+    private static final String PASTA_TABELAS = "Tabelas";
+    private static final String PASTA_VISOES = "Vis\u00f5es";
+    private static final String PASTA_FUNCOES = "Fun\u00e7\u00f5es";
+    private static final String PASTA_GATILHOS = "Gatilhos";
+
+    /** placeholder que vira o conteudo real quando um no e expandido */
+    private static final String AVISO_CARREGANDO = "carregando...";
 
     public IdePanel(IdePanelListener listener) {
         this.listener = listener;
@@ -527,14 +536,15 @@ public class IdePanel extends JPanel {
         configurarArvore();
         montarArvore();
 
-        // as tabelas de cada banco sao carregadas sob demanda, so quando
-        // o usuario expande o nó -- assim listar bancos nunca cria arquivos
+        // o conteudo de cada banco (pastas de objetos e os objetos em si)
+        // e carregado sob demanda, so quando o usuario expande o no --
+        // assim listar bancos nunca cria arquivos nem abre conexoes
         arvore.addTreeExpansionListener(new TreeExpansionListener() {
             @Override
             public void treeExpanded(TreeExpansionEvent evento) {
                 Object ultimo = evento.getPath().getLastPathComponent();
                 if (ultimo instanceof DefaultMutableTreeNode) {
-                    carregarTabelasSeNecessario((DefaultMutableTreeNode) ultimo);
+                    carregarConteudoSeNecessario((DefaultMutableTreeNode) ultimo);
                 }
             }
 
@@ -583,40 +593,122 @@ public class IdePanel extends JPanel {
         DefaultMutableTreeNode raiz = new DefaultMutableTreeNode("Bancos de Dados");
         for (String banco : Conexao.listarBancos()) {
             DefaultMutableTreeNode noBanco = new DefaultMutableTreeNode(banco);
-            noBanco.add(new DefaultMutableTreeNode("carregando...")); // placeholder: vira tabelas ao expandir
+            noBanco.add(criarPasta(PASTA_TABELAS));
+            noBanco.add(criarPasta(PASTA_VISOES));
+            noBanco.add(criarPasta(PASTA_FUNCOES));
+            noBanco.add(criarPasta(PASTA_GATILHOS));
             raiz.add(noBanco);
         }
         arvore.setModel(new DefaultTreeModel(raiz));
         arvore.expandPath(new TreePath(raiz.getPath()));
     }
 
-    private void carregarTabelasSeNecessario(DefaultMutableTreeNode noBanco) {
-        if (noBanco.isLeaf()) {
+    /** cria uma pasta de objetos com placeholder; o conteudo vem ao expandir */
+    private DefaultMutableTreeNode criarPasta(String nome) {
+        DefaultMutableTreeNode pasta = new DefaultMutableTreeNode(nome);
+        pasta.add(new DefaultMutableTreeNode(AVISO_CARREGANDO));
+        return pasta;
+    }
+
+    /**
+     * carrega sob demanda o conteudo do no que acabou de ser expandido.
+     * a decisao usa o nivel do no na arvore:
+     * banco (1) é so estrutura; pasta (2) vira os objetos; tabela/visao
+     * (3) vira a lista de campos; campos sao folhas (4).
+     */
+    private void carregarConteudoSeNecessario(DefaultMutableTreeNode no) {
+        if (no.isLeaf()) {
             return;
         }
-        Object primeiro = ((DefaultMutableTreeNode) noBanco.getFirstChild()).getUserObject();
-        if (!"carregando...".equals(primeiro)) {
+        Object primeiro = ((DefaultMutableTreeNode) no.getFirstChild()).getUserObject();
+        if (!AVISO_CARREGANDO.equals(primeiro)) {
             return; // ja carregado
         }
-        String nomeBanco = (String) noBanco.getUserObject();
-        noBanco.removeAllChildren();
+        switch (no.getLevel()) {
+            case 2 -> carregarItensDaPasta(no);
+            case 3 -> carregarCampos(no);
+            default -> { /* banco e a raiz: nada a carregar */ }
+        }
+    }
+
+    private void carregarItensDaPasta(DefaultMutableTreeNode pasta) {
+        String nomeBanco = (String) ((DefaultMutableTreeNode) pasta.getParent()).getUserObject();
+        String nomePasta = (String) pasta.getUserObject();
+        pasta.removeAllChildren();
 
         try {
-            List<String> tabelas = Conexao.listarTabelas(nomeBanco);
-            if (tabelas.isEmpty()) {
-                noBanco.add(new DefaultMutableTreeNode("(sem tabelas)"));
+            List<String> itens;
+            if (PASTA_TABELAS.equals(nomePasta)) {
+                itens = Conexao.listarTabelas(nomeBanco);
+            } else if (PASTA_VISOES.equals(nomePasta)) {
+                itens = Conexao.listarVisoes(nomeBanco);
+            } else if (PASTA_FUNCOES.equals(nomePasta)) {
+                itens = Conexao.listarFuncoes(nomeBanco);
             } else {
-                for (String tabela : tabelas) {
-                    noBanco.add(new DefaultMutableTreeNode(tabela));
+                itens = Conexao.listarGatilhos(nomeBanco);
+            }
+
+            if (itens.isEmpty()) {
+                pasta.add(new DefaultMutableTreeNode(mensagemPastaVazia(nomePasta)));
+            } else {
+                for (String item : itens) {
+                    if (PASTA_TABELAS.equals(nomePasta) || PASTA_VISOES.equals(nomePasta)) {
+                        pasta.add(criarObjetoExpandivel(item));
+                    } else {
+                        pasta.add(new DefaultMutableTreeNode(item));
+                    }
                 }
             }
         } catch (Exception erro) {
-            noBanco.add(new DefaultMutableTreeNode(
+            pasta.add(new DefaultMutableTreeNode(
                     "(nao foi possivel listar: " + erro.getMessage() + ")"));
         }
 
-        ((DefaultTreeModel) arvore.getModel()).reload(noBanco);
-        arvore.expandPath(new TreePath(noBanco.getPath()));
+        ((DefaultTreeModel) arvore.getModel()).reload(pasta);
+        arvore.expandPath(new TreePath(pasta.getPath()));
+    }
+
+    /** cria um no de tabela/visao expansivel que mostra os campos ao expandir */
+    private DefaultMutableTreeNode criarObjetoExpandivel(String nome) {
+        DefaultMutableTreeNode no = new DefaultMutableTreeNode(nome);
+        no.add(new DefaultMutableTreeNode(AVISO_CARREGANDO));
+        return no;
+    }
+
+    private void carregarCampos(DefaultMutableTreeNode objeto) {
+        String nomeBanco = (String) ((DefaultMutableTreeNode) objeto.getParent().getParent()).getUserObject();
+        String nomeObjeto = (String) objeto.getUserObject();
+        objeto.removeAllChildren();
+
+        try {
+            List<String> campos = Conexao.listarColunas(nomeBanco, nomeObjeto);
+            if (campos.isEmpty()) {
+                objeto.add(new DefaultMutableTreeNode("(sem campos)"));
+            } else {
+                for (String campo : campos) {
+                    objeto.add(new DefaultMutableTreeNode(campo));
+                }
+            }
+        } catch (Exception erro) {
+            objeto.add(new DefaultMutableTreeNode(
+                    "(nao foi possivel listar: " + erro.getMessage() + ")"));
+        }
+
+        ((DefaultTreeModel) arvore.getModel()).reload(objeto);
+        arvore.expandPath(new TreePath(objeto.getPath()));
+    }
+
+    private String mensagemPastaVazia(String nomePasta) {
+        switch (nomePasta) {
+            case PASTA_TABELAS:
+                return "(sem tabelas)";
+            case PASTA_VISOES:
+                return "(sem vis\u00f5es)";
+            case PASTA_FUNCOES:
+                return "(sem fun\u00e7\u00f5es)";
+            default:
+                return "(sem gatilhos)";
+        }
     }
 
     // ------------------------------------------------------------------
