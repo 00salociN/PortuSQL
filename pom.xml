@@ -60,6 +60,7 @@
     </dependencies>
 
     <build>
+        <>
 <<<<<<< HEAD
         <!-- garante que arquivos de recurso em src/main/java (ex.: a
              pasta Imagens, com a logo da Homepage) tambem sejam copiados
