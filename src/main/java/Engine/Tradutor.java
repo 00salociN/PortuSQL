@@ -4,6 +4,7 @@
  */
 package Engine;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -265,15 +266,30 @@ public class Tradutor {
         	banco.append(";");
         	return banco.toString();
         }
-
-
-        
-        
-        
         
         private String traducaoSelecionar(Selecionar selecionar){
             banco = new StringBuilder("Select ");
-            banco.append(String.join(", ", selecionar.getColunas()));
+            
+            if(selecionar.isDistinct()) {
+                banco.append("Distinct ");
+            }
+            
+            List<String> itens = new ArrayList<>();
+            for(FuncaoAgregada item : selecionar.getColunas()) {
+                if(item.isFuncao()) {
+                    String funcao = item.getFuncao();
+                    if(item.isDistinguir()) {
+                        itens.add(funcao + "(Distinct " + item.getArgumento() + ")");
+                    } else {
+                        itens.add(funcao + "(" + item.getArgumento() + ")");
+                    }
+                } else {
+                    // Coluna simples ou *
+                    itens.add(item.getArgumento());
+                }
+            }
+            
+            banco.append(String.join(", ", itens));
             banco.append(" from ").append(selecionar.getTabela());
             
             if (selecionar.getCondicao() != null && !selecionar.getCondicao().isEmpty()) {
@@ -330,11 +346,18 @@ public class Tradutor {
             return banco.toString();
         }
         private String traducaoDefinicaoColuna(DefinicaoColuna coluna){
-            String tipoSql = tipo_dados.get(coluna.getTipoDado().toLowerCase());
+        	String tipoSql;
+        
+        	if(coluna.getTipoDado().toLowerCase().startsWith("varchar") || coluna.getTipoDado().toLowerCase().startsWith("char")) {
+            tipoSql = coluna.getTipoDado().toLowerCase().toUpperCase();
+        	} else { 
+        		tipoSql = tipo_dados.get(coluna.getTipoDado().toLowerCase());
+        	}
             if (tipoSql == null) {
                 throw new IllegalArgumentException(
                 "Tipo de dado não encontradi" + coluna.getTipoDado());
             }
+        	
             StringBuilder definicao = new StringBuilder()
                     .append(coluna.getNome())
                     .append(" ")

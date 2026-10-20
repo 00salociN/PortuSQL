@@ -39,5 +39,7 @@ public enum TipoToken {
     /** fim da entrada (token de encerramento) */
     fim,
     /** tipo de dado (INT, TEXTO, DATA, ...) */
-    tipo_dado
+    tipo_dado,
+    
+    funcao_agregada
 }

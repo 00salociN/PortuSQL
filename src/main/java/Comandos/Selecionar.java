@@ -30,13 +30,15 @@ public class Selecionar implements Comando{
     /** nome da tabela consultada */
     private final String tabela;
     /** colunas desejadas (ou "*" para todas) */
-    private final List<String> colunas;
+    private final List<FuncaoAgregada> colunas;
     /** condicao da consulta (opcional) */
     private final String condicao;
     /** colunas do AGRUPAR POR (opcional) */
     private final List<String> agruparPor;
     /** colunas do ORDENAR POR (opcional) */
     private final List<String> ordenarPor;
+    /** indica se será distinct */
+    private boolean distinct;
 
     /**
      * construtor que inicializa os atributos
@@ -46,12 +48,22 @@ public class Selecionar implements Comando{
      * @param agruparPor lista de colunas do agrupamento (AGRUPAR POR), opcional
      * @param ordenarPor lista de colunas da ordenacao (ORDENAR POR), opcional
      */
-    public Selecionar(String tabela, List<String> colunas, String condicao, List<String> agruparPor, List<String> ordenarPor) {
+    public Selecionar(String tabela, List<FuncaoAgregada> colunas, String condicao, List<String> agruparPor, List<String> ordenarPor) {
         this.tabela = tabela;
         this.colunas = colunas;
         this.condicao = condicao;
         this.agruparPor = agruparPor;
         this.ordenarPor = ordenarPor;
+        this.distinct = false;
+    }
+    
+    public Selecionar(String tabela, List<FuncaoAgregada> colunas, String condicao, List<String> agruparPor, List<String> ordenarPor, boolean distinct) {
+        this.tabela = tabela;
+        this.colunas = colunas;
+        this.condicao = condicao;
+        this.agruparPor = agruparPor;
+        this.ordenarPor = ordenarPor;
+        this.distinct = distinct;
     }
 
     /**
@@ -66,7 +78,7 @@ public class Selecionar implements Comando{
      * retorna as colunas desejadas
      * @return {@link List} com as colunas (podendo conter "*")
      */
-    public List<String> getColunas() {
+    public List<FuncaoAgregada> getColunas() {
         return colunas;
     }
 
@@ -93,15 +105,23 @@ public class Selecionar implements Comando{
     public List<String> getOrdenarPor(){
     	return ordenarPor;
     }
+    
+    /**
+     * retorna se será distinct
+     * @return distinct
+     */
+    public boolean isDistinct() {
+    	return distinct;
+    }
 
     /**
      * retorna uma representação no formato String o comando Selecionar
-     * <p>formato: {@code "Selecionar[tabela=" + tabela + ", colunas=" + colunas + ", condicao=" + condicao + ", agruparPor=" + agruparPor + ", ordenarPor=" + ordenarPor + "]"}
+     * <p>formato: {@code "Selecionar[tabela=" + tabela + ", colunas=" + colunas + ", condicao=" + condicao + ", agruparPor=" + agruparPor + ", ordenarPor=" + ordenarPor + ", distinct=" + distinct + "]"}
      * @return representação em forma de texto do comando
      */
     @Override
     public String toString() {
-        return "Selecionar[tabela=" + tabela + ", colunas=" + colunas + ", condicao=" + condicao + ", agruparPor=" + agruparPor + ", ordenarPor=" + ordenarPor + "]";
+        return "Selecionar[tabela=" + tabela + ", colunas=" + colunas + ", condicao=" + condicao + ", agruparPor=" + agruparPor + ", ordenarPor=" + ordenarPor + ", distinct=" + distinct + "]";
         
     
     }

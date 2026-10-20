@@ -79,12 +79,40 @@ public class Parser {
 	private DefinicaoColuna parserDefinicaoColuna() {
 		String nomeColuna = esperarIdentificador();
 		Token TokenTipo = tokenAtual();
-		if(TokenTipo.getTipo() != TipoToken.tipo_dado) {
-			throw new ErroParser("Esperava um tipo de dado após o nome da coluna '" + nomeColuna + "'", TokenTipo.getLinha(), TokenTipo.getColuna());
-		}
-		String tipoDado = TokenTipo.getLexema();
-		avancar();
+		String tipoDado;
 		
+		if(TokenTipo.getTipo() == TipoToken.palavra_chave && TokenTipo.getLexema().equalsIgnoreCase("CARACTERE")){
+			avancar();
+			if(tokenAtual().getTipo() == TipoToken.palavra_chave && tokenAtual().getLexema().equalsIgnoreCase("VARIAVEL")) {
+				avancar();
+				esperarTipo(TipoToken.parenteses_esquerda, "(");
+				if(tokenAtual().getTipo() != TipoToken.numerico) {
+					throw new ErroParser("Esperarav um número após '(' em CARACTERE VARIAVEL", tokenAtual().getLinha(), tokenAtual().getColuna());
+				}
+				String tamanho = tokenAtual().getLexema();
+				avancar();
+				esperarTipo(TipoToken.parenteses_direita, ")");
+				tipoDado = "VARCHAR(" + tamanho + ")";
+			} else if(tokenAtual().getTipo() == TipoToken.palavra_chave && tokenAtual().getLexema().equalsIgnoreCase("FIXO")) {
+				avancar();
+				esperarTipo(TipoToken.parenteses_esquerda, "(");
+				if(tokenAtual().getTipo() != TipoToken.numerico) {
+					throw new ErroParser("Esperava um número após '(' em CARACTERE FIXO", tokenAtual().getLinha(), tokenAtual().getColuna());
+				}
+				String tamanho = tokenAtual().getLexema();
+				avancar();
+				esperarTipo(TipoToken.parenteses_direita, ")");
+				tipoDado = "CHAR(" + tamanho + ")";
+			} else {
+				throw new ErroParser("Esperava 'VARIAVEL' ou 'FIXO' após 'CARACTERE'", tokenAtual().getLinha(), tokenAtual().getColuna());				
+			}
+		} else if (TokenTipo.getTipo() == TipoToken.tipo_dado) {
+			tipoDado = TokenTipo.getLexema();
+			avancar();
+		} else {
+			throw new ErroParser("Esperava um tipo de dado após o nome da coluna '" + nomeColuna + "'", tokenAtual().getLinha(), tokenAtual().getColuna());
+		}
+
 		boolean chavePrimaria = false;
 		boolean naoNulo = false;
 		while(true) {
@@ -114,19 +142,83 @@ public class Parser {
 	 */
 	private Selecionar parserSelecionar() {
 	    esperarLexema("SELECIONAR");
-	    List<String> colunas = new ArrayList<>();
-	    colunas.add(esperarIdentificadorAsterisco());
+	    
+	    boolean distinct = false;
+	    if(tokenAtual().getTipo() == TipoToken.palavra_chave && tokenAtual().getLexema().equalsIgnoreCase("DISTINCT")) {
+	        distinct = true;
+	        avancar();
+	    }
+	    
+	    List<FuncaoAgregada> colunas = new ArrayList<>();
+	    colunas.add(lerItemSelecionar());
 	    while(tokenAtual().getTipo() == TipoToken.virgula) {
 	        avancar();
-	        colunas.add(esperarIdentificadorAsterisco());
+	        colunas.add(lerItemSelecionar());
 	    }
 	    esperarLexema("DE");
 	    String tabela = esperarIdentificador();
 	    String condicao = parserCondicao();
 	    List<String> agruparPor = parserListaColunasOpcional("AGRUPAR", "POR");
 	    List<String> ordenarPor = parserListaColunasOpcional("ORDENAR", "POR");
-	    return new Selecionar(tabela, colunas, condicao, agruparPor, ordenarPor);
+	    return new Selecionar(tabela, colunas, condicao, agruparPor, ordenarPor, distinct);
 	}
+	
+	private FuncaoAgregada lerItemSelecionar() {
+	    Token atual = tokenAtual();
+
+	    if (atual.getTipo() == TipoToken.operador_simples && atual.getLexema().equals("*")) {
+	        avancar();
+	        return FuncaoAgregada.coluna("*");
+	    }
+	    
+	    if (atual.getTipo() == TipoToken.funcao_agregada) {
+	        String lex = atual.getLexema().toLowerCase();
+	        String nomeFuncao = NomeFuncao(lex);
+	        avancar(); 
+	        esperarTipo(TipoToken.parenteses_esquerda, "(");
+	        
+	        boolean distinguir = false;
+	        if (tokenAtual().getTipo() == TipoToken.palavra_chave && tokenAtual().getLexema().equalsIgnoreCase("DISTINCT")) {
+	            distinguir = true;
+	            avancar();
+	        }
+	        
+	        String argumento;
+	        if (tokenAtual().getTipo() == TipoToken.operador_simples && tokenAtual().getLexema().equals("*")) {
+	            argumento = "*";
+	            avancar();
+	        } else {
+	            argumento = esperarIdentificador();
+	        }
+	        
+	        esperarTipo(TipoToken.parenteses_direita, ")");
+	        return new FuncaoAgregada(nomeFuncao, distinguir, argumento);
+	    }
+	    
+	    // Coluna simples
+	    return FuncaoAgregada.coluna(esperarIdentificador());
+	}
+	 
+	    
+	    private String NomeFuncao(String lexema) {
+	    	switch (lexema.toLowerCase()) {
+	    	case "contar":
+	    		return "COUNT";
+	    	case "soma":
+	    		return "SUM";
+	    	case "med":
+	    		return "AVG";
+	    	case "min":
+	    		return "MIN";
+	    	case "max":
+	    		return "MAX";
+	    		default:
+	    			return lexema.toUpperCase();
+	    	}
+	    }
+
+
+
 
 	/**
 	 * analisa o comando CRIAR TABELA

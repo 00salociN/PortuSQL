@@ -220,6 +220,12 @@ public class Lexer {
         if (palavraNormalizada.equals("nulo")) {
             return new Token(TipoToken.nulo, palavra, inicioLinha, inicioColuna);
         }
+        
+        TipoToken tipoFuncao = KW.getFuncaoAgregada(palavraNormalizada);
+        if(tipoFuncao !=  null) {
+        	return new Token(tipoFuncao, palavraNormalizada, linha, coluna);
+
+        }
 
         TipoToken tipoKW = KW.TipoKWSimples(palavraNormalizada);
         if (tipoKW != null) {
@@ -230,6 +236,7 @@ public class Lexer {
         if (tipoDado != null) {
             return new Token(tipoDado, palavra, inicioLinha, inicioColuna);
         }
+
 
         return new Token(TipoToken.identificador, palavra, inicioLinha, inicioColuna);
     }

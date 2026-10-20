@@ -23,6 +23,8 @@ public class KW {
     private static final Map<String, TipoToken> tipo_dados = new HashMap<>();
     /** mapa de palavras compostas (primeira palavra -> possiveis segundas palavras) */
     private static final Map<String, Set<String>> palavras_compostas = new HashMap<>();
+    
+    private static final Map<String, TipoToken> funcoes_agregadas = new HashMap<>();
 
     static {
         palavras_simples.put("criar", TipoToken.palavra_chave);
@@ -63,7 +65,11 @@ public class KW {
         palavras_simples.put("banco", TipoToken.palavra_chave);
         palavras_simples.put("dados", TipoToken.palavra_chave);
         palavras_simples.put("usar", TipoToken.palavra_chave);
-
+        palavras_simples.put("caractere", TipoToken.palavra_chave);
+        palavras_simples.put("variavel", TipoToken.palavra_chave);
+        palavras_simples.put("fixo", TipoToken.palavra_chave);
+        palavras_simples.put("", TipoToken.palavra_chave);
+        
         tipo_dados.put("int", TipoToken.tipo_dado);
         tipo_dados.put("inteiro", TipoToken.tipo_dado);
         tipo_dados.put("texto", TipoToken.tipo_dado);
@@ -74,6 +80,13 @@ public class KW {
         tipo_dados.put("mint", TipoToken.tipo_dado);
         tipo_dados.put("hora", TipoToken.tipo_dado);
         tipo_dados.put("data_hora", TipoToken.tipo_dado);
+        
+        funcoes_agregadas.put("max", TipoToken.funcao_agregada);
+        funcoes_agregadas.put("min", TipoToken.funcao_agregada);
+        funcoes_agregadas.put("soma", TipoToken.funcao_agregada);
+        funcoes_agregadas.put("med", TipoToken.funcao_agregada);
+        funcoes_agregadas.put("contar", TipoToken.funcao_agregada);
+        
 
 //        adicionarComposta("ordenar", "por");
 //        adicionarComposta("agrupar", "por");
@@ -127,4 +140,10 @@ public class KW {
         Set<String> seguintes = palavras_compostas.get(primeira.toLowerCase());
         return seguintes != null && seguintes.contains(segunda.toLowerCase());
     }
+    public static TipoToken getFuncaoAgregada(String palavra) {
+    	if(palavra == null)
+    		return null;
+    	return funcoes_agregadas.get(palavra.toLowerCase());
+    }
 }
+

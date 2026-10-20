@@ -105,7 +105,7 @@ public class IdePanel extends JPanel {
             "e", "ou", "nao", "nulo", "chave", "primaria", "estrangeira", "alterar",
             "adicionar", "coluna", "renomear", "restricao", "remover", "excluir",
             "mostrar", "esvaziar", "para", "referencia", "usar", "banco", "dados",
-            "verificar");
+            "verificar", "caractere", "fixo", "variavel");
 
     /** tipos de dado do PortuSQL usados no realce de sintaxe */
     private static final Set<String> TIPOS_DADO = Set.of(
