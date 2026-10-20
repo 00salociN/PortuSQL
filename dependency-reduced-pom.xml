@@ -6,6 +6,17 @@
   <name>PortuSQL</name>
   <version>0.0.1-SNAPSHOT</version>
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <resource>
+        <directory>src/main/java</directory>
+        <excludes>
+          <exclude>**/*.java</exclude>
+        </excludes>
+      </resource>
+    </resources>
     <finalName>PortuSQL</finalName>
     <pluginManagement>
       <plugins>

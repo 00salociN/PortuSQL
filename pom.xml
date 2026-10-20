@@ -41,6 +41,14 @@
     </dependencies>
 
     <build>
+<<<<<<< Updated upstream
+=======
+        <finalName>PortuSQL</finalName>
+
+        <!-- garante que arquivos de recurso em src/main/java (ex.: a
+             pasta Imagens, com a logo da Homepage) tambem sejam copiados
+             para target/classes nos builds feitos por linha de comando -->
+>>>>>>> Stashed changes
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
