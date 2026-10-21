@@ -65,17 +65,23 @@ style: |
     font-size: 0.68em;
     border-collapse: collapse;
     margin: 0.3em auto;
+    background: #161b22;
   }
   th {
-    background: #161b22;
+    background: #21262d;
     color: #3fb950;
     border: 1px solid #30363d !important;
     padding: 7px 13px;
     text-align: left;
   }
   td {
+    background: #161b22;
+    color: #e6edf3;
     border: 1px solid #30363d !important;
     padding: 6px 13px;
+  }
+  tr:nth-child(even) td {
+    background: #1c2128;
   }
   blockquote {
     background: #12261a;
@@ -89,6 +95,8 @@ style: |
   li { margin: 0.12em 0; }
   section.lead p { color: #8b949e; }
   section.lead h1 + p { font-size: 1.15em; color: #3fb950; }
+  section.center { display: flex; align-items: center; justify-content: center; text-align: center; }
+  section.center h1 { font-size: 2.4em; }
   footer { font-size: 0.55em; color: #484f58; }
   section::after { color: #3fb950; opacity: 0.7; }
 ---
@@ -384,10 +392,20 @@ SQL     : CREATE TABLE alunos (
 |---|---|---|---|
 | `int` / `inteiro` | `int` | número inteiro | `20`, `-3` |
 | `texto` | `text` | texto livre | `'João'`, `'1º Ano'` |
+| `CARACTERE VARIAVEL(n)` | `varchar(n)` | texto com limite de tamanho | `'João'` (até 50) |
+| `CARACTERE FIXO(n)` | `char(n)` | texto de tamanho fixo | `'SP'` (sempre 2) |
 | `decimal` | `decimal` | número com vírgula | `3.14`, `8.75` |
 | `data` | `date` | só a data | `'2026-05-20'` |
 | `hora` | `time` | só a hora | `'07:30'` |
 | `data_hora` | `timestamp` | data e hora juntas | `'2026-05-20 07:30'` |
+
+```text
+CRIAR TABELA alunos (
+    id inteiro CHAVE PRIMARIA,
+    nome CARACTERE VARIAVEL(50) NAO NULO,
+    uf CARACTERE FIXO(2)
+)
+```
 
 > ⚠️ Os tipos `gint`, `cint` e `mint` são reconhecidos pelo analisador, mas
 > ainda **não têm tradução** no banco — se usar, virá erro de tradução.
@@ -782,23 +800,46 @@ SELECIONAR nome, idade DE alunos ORDENAR POR idade
 ## AGRUPAR POR — resumindo resultados
 
 ```text
-PortuSQL: SELECIONAR cidade DE alunos AGRUPAR POR cidade
+PortuSQL: SELECIONAR turma_id, CONTAR(*) DE alunos AGRUPAR POR turma_id
 
-SQL     : SELECT cidade FROM alunos GROUP BY cidade;
+SQL     : SELECT turma_id, COUNT(*) FROM alunos GROUP BY turma_id;
 ```
 
-- **Agrupa linhas parecidas** numa só (útil para listar valores distintos,
-  contar por categoria etc.).
+- **Agrupa linhas parecidas** numa só — a base para responder
+  perguntas do tipo "quantos por categoria?".
+- Combine com as **funções agregadas** (próximo slide) para contar,
+  somar e calcular médias por grupo.
+
+> 📌 Regra de ordem do `SELECIONAR`:
+> `DE` → `ONDE` → `AGRUPAR POR` → `ORDENAR POR`.
+> Só `DE` é obrigatório depois das colunas.
+
+---
+
+## Funções agregadas (novidade!)
+
+Funções que **resumem** vários valores num só. Usadas direto no `SELECIONAR`:
+
+| PortuSQL | SQL | O que calcula |
+|---|---|---|
+| `CONTAR(...)` | `COUNT(...)` | quantas linhas/valores |
+| `SOMA(...)` | `SUM(...)` | soma dos valores |
+| `MED(...)` | `AVG(...)` | média aritmética |
+| `MIN(...)` | `MIN(...)` | menor valor |
+| `MAX(...)` | `MAX(...)` | maior valor |
 
 ```text
--- Quantos alunos por turma? (contagem por grupo):
-SELECIONAR turma_id AGRUPAR POR turma_id DE alunos
+SELECIONAR CONTAR(*) DE alunos
+         → SELECT COUNT(*) FROM alunos;
+
+SELECIONAR MIN(idade), MAX(idade) DE alunos
+         → SELECT MIN(idade), MAX(idade) FROM alunos;
+
+SELECIONAR MED(nota) DE alunos ONDE turma_id = 1
+         → SELECT AVG(nota) FROM alunos WHERE turma_id = 1;
 ```
 
-> 💡 Na prática do dia a dia, combine com funções do banco (como contagens)
-> para responder perguntas do tipo "quantos por categoria?".
-> Hoje o foco é entender **o agrupamento em si**: linhas com o mesmo valor
-> viram um grupo.
+> `CONTAR(*)` conta **linhas**; `CONTAR(coluna)` conta valores **não vazios**.
 
 ---
 
@@ -1036,6 +1077,8 @@ valores      verificar
 | `DELETAR DE t [ONDE ...]` | `DELETE FROM t [WHERE ...]` |
 | `SELECIONAR ... DE t [ONDE ...]` | `SELECT ... FROM t [WHERE ...]` |
 | `E` / `OU` / `NAO` / `PARECIDO COM` | `AND` / `OR` / `NOT` / `LIKE` |
+| `CONTAR` / `SOMA` / `MED` | `COUNT` / `SUM` / `AVG` |
+| `MIN(...)` / `MAX(...)` | `MIN(...)` / `MAX(...)` |
 
 ---
 
@@ -1051,34 +1094,15 @@ Crie o banco de uma **biblioteca**:
 4. Ordene a lista de livros por `titulo`.
 5. Atualize o campo `disponivel` de um livro para `'nao'`.
 6. Apague um livro específico pelo `id`.
-7. **Desafio:** adicione a restrição `VERIFICAR ano > 1400` e tente
+7. **Desafio:** conte quantos livros a estante tem (`CONTAR(*)`) e
+   qual é o ano mais antigo (`MIN(ano)`).
+8. **Extra:** adicione a restrição `VERIFICAR ano > 1400` e tente
    inserir um livro do ano 1000 — o que acontece?
-
----
-
-## Próximos passos
-
-O PortuSQL continua evoluindo. Alguns pontos já planejados:
-
-- `USAR BANCO DE DADOS` e `EXCLUIR BANCO DE DADOS` executáveis pela linguagem.
-- Mais tipos de dado (`booleano`, `enum`, `decimal` com precisão...).
-- Funções de agregação (contar, somar, média) junto do `AGRUPAR POR`.
-- Talvez: junções entre tabelas (`JUNTAR COM`?).
-
-**Para estudar mais:** a linguagem tem documentação completa no projeto —
-
-- `COMANDOS.md` — referência de todos os comandos, com exemplos.
-- `ESPECIFICACAO.md` — especificação formal da linguagem (gramática e semântica).
-
-> O SQL que você aprendeu aqui é o mesmo que roda o mundo —
-> continue praticando!
 
 ---
 
 <!-- _paginate: false -->
 <!-- _footer: '' -->
+<!-- _class: center -->
 
-# Bora praticar!
-
-_Agora é com você: a lógica é a mesma do SQL de verdade —
-só que na sua língua._
+# obrigado pela atenção
