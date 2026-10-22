@@ -97,6 +97,14 @@ style: |
   section.lead h1 + p { font-size: 1.15em; color: #3fb950; }
   section.center { display: flex; align-items: center; justify-content: center; text-align: center; }
   section.center h1 { font-size: 2.4em; }
+  section.contato { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
+  section.contato h1 { font-size: 2em; text-align: center; margin: 0 0 0.4em 0; }
+  .grade { flex: 1; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; width: 100%; }
+  .foto-esq { width: 160px; height: auto; justify-self: start; }
+  .duvidas { margin: 0 0 2px 0; font-size: 1.2em; line-height: 1.3; color: #ffa657; text-align: center; }
+  .zap { grid-column: 2; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .zap .foto-zap { width: 245px; height: auto; }
+  .email { margin: 0; font-size: 0.68em; color: #8b949e; }
   footer { font-size: 0.55em; color: #484f58; }
   section::after { color: #3fb950; opacity: 0.7; }
 ---
@@ -106,11 +114,7 @@ style: |
 
 # PortuSQL
 
-## Curso introdutório de bancos de dados
-
-_aprendendo a manipular dados com uma linguagem em português_
-
-_para ensino médio e técnico_
+## Aula introdutória
 
 ---
 
@@ -125,8 +129,6 @@ _para ensino médio e técnico_
 | **5** | Consultar: `SELECIONAR`, `MOSTRAR` (DQL) |
 | **6** | Prática guiada: banco ESCOLA completo |
 | **7** | Revisão, erros comuns e exercício |
-
-> 💡 Sugestão de duração: 2 aulas de 50 min (Partes 1–5) + 1 aula (Partes 6–7).
 
 ---
 
@@ -173,8 +175,6 @@ O modelo mais usado no mundo é o **relacional**, proposto por E. F. Codd (1970)
   +----+--------+------+
 ```
 
-> 🧠 Pense numa **planilha bem organizada** — mas com superpoderes.
-
 ---
 
 ## Chaves: primária e estrangeira
@@ -215,9 +215,6 @@ Exemplos: Oracle, PostgreSQL, MySQL, SQL Server... e o **H2**.
 | Modo | Pode rodar **embarcado** dentro de um programa Java |
 | Arquivos | Cada banco vira um arquivo no computador |
 | Usado no PortuSQL | Sim — é o banco alvo da tradução |
-
-> O PortuSQL não é um banco de dados: é uma **linguagem** que traduz
-> seus comandos para o SQL do H2.
 
 ---
 
@@ -282,7 +279,7 @@ Você:     SELECIONAR nome DE alunos ONDE idade > 18
 Tradutor: SELECT nome FROM alunos WHERE idade > 18;
 ```
 
-> As mensagens de erro indicam **linha e coluna** — seu GPS para consertar.
+> As mensagens de erro indicam **linha e coluna**.
 
 ---
 
@@ -407,10 +404,6 @@ CRIAR TABELA alunos (
 )
 ```
 
-> ⚠️ Os tipos `gint`, `cint` e `mint` são reconhecidos pelo analisador, mas
-> ainda **não têm tradução** no banco — se usar, virá erro de tradução.
-> Prefira `int`, `decimal` etc.
-
 ---
 
 ## Restrições na coluna
@@ -524,7 +517,6 @@ SQL     : Alter Table alunos Rename To estudantes;
 
 > ⚠️ Atenção às diferenças:
 > - Renomear **tabela** é só `RENOMEAR PARA` (sem a palavra `TABELA`).
-> - `REMOVER COLUNA` **apaga os dados** da coluna junto — sem volta!
 
 ---
 
@@ -576,7 +568,7 @@ INSERIR EM alunos VALORES (1, 'João', 20)
 INSERIR (nome, idade) EM alunos VALORES ('João', 20)
 ```
 
-> Erro comum: escrever `INSERIR VALORES (...)` **sem o EM** — o Parser recusa.
+> Erro comum: escrever `INSERIR VALORES (...)` **sem o EM**.
 
 ---
 
@@ -593,10 +585,6 @@ INSERIR (nome, idade) EM alunos VALORES ('João', 20)
 INSERIR (nome, nota, turma_id) EM alunos VALORES ('Maria', 8.75, 1)
 INSERIR (nome, nota) EM alunos VALORES ('Ana', nulo)
 ```
-
-> ⚠️ Texto sem aspas (`VALORES (João, 20)`) é **erro léxico** —
-> o Lexer não sabe que `João` é um valor.
-> ⚠️ Números com aspas (`'20'`) viram texto — quase sempre não é o que queremos.
 
 ---
 
@@ -619,7 +607,6 @@ ATUALIZAR alunos DEFINIR idade = 21, nome = 'João Pedro' ONDE id = 1
 
 > ⚠️ **Sem `ONDE`, TODAS as linhas são atualizadas!**
 > `ATUALIZAR alunos DEFINIR idade = 10` deixa todo mundo com 10 anos.
-> Confira o filtro antes de executar.
 
 ---
 
@@ -661,10 +648,6 @@ ATUALIZAR alunos DEFINIR idade = 17 ONDE nome PARECIDO COM 'Carla'
 -- 3. Saída de aluno (apaga SÓ ele):
 DELETAR DE alunos ONDE nome PARECIDO COM 'Carla'
 ```
-
-> 🔄 Ciclo de vida do registro: **nasce no INSERIR, cresce no ATUALIZAR,
-> morre no DELETAR**. Os três sempre apontam para uma **tabela**
-> e podem filtrar com **ONDE**.
 
 ---
 
@@ -877,9 +860,6 @@ SQL     : SELECT * FROM INFORMATION_SCHEMA.COLUMNS
 - No PortuSQL, cada "banco de dados" é um **arquivo H2** dentro da pasta
   de bancos do programa.
 
-> 🧠 Assim você conhece os **20 comandos** — e sabe quais ainda estão
-> em construção. Faz parte do mundo real: linguagens evoluem!
-
 ---
 
 # PARTE 6
@@ -953,10 +933,6 @@ INSERIR (nome, idade, turma_id) EM alunos VALORES ('Ana', 16, 2)
   dispensa o `id` (o banco gera o valor).
 - A restrição `fk_turma` garante: só entra turma que **existe**.
 
-> 🧪 Experimente errar de propósito:
-> `INSERIR (nome, idade, turma_id) EM alunos VALORES ('Léo', 15, 99)`
-> → o banco recusa: não existe turma 99!
-
 ---
 
 ## Passo 4 · consultar
@@ -979,9 +955,6 @@ SELECIONAR nome DE alunos ONDE idade >= 16 ORDENAR POR nome
 SQL equivalente da última:
 SELECT nome FROM alunos WHERE idade >= 16 ORDER BY nome;
 ```
-
-> 🔎 Depois de consultar, use `MOSTRAR TABELA alunos` para revisar
-> a estrutura quando esquecer um nome de coluna.
 
 ---
 
@@ -1103,6 +1076,15 @@ Crie o banco de uma **biblioteca**:
 
 <!-- _paginate: false -->
 <!-- _footer: '' -->
-<!-- _class: center -->
+<!-- _class: contato -->
 
 # obrigado pela atenção
+
+<div class="grade">
+  <img class="foto-esq" src="imagens/HKfehB_WMAAdMYV.jpg" alt="">
+  <div class="zap">
+    <p class="duvidas">dúvidas lá no meu pix</p>
+    <img class="foto-zap" src="imagens/WhatsApp%20Image%202026-10-21%20at%2019.02.14.jpeg" alt="">
+    <p class="email">cleristonopato@outlook.com</p>
+  </div>
+</div>
