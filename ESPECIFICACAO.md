@@ -539,6 +539,22 @@ TipoDado ::= "int" | "inteiro" | "texto" | "data" | "decimal"
 
 ---
 
+### 10.3 Funções agregadas
+
+As funções agregadas são reconhecidas pelo Lexer e traduzidas pelo Parser
+para o equivalente do H2:
+
+| Função PortuSQL | SQL (H2) | O que calcula |
+|---|---|---|
+| `CONTAR` | `COUNT` | quantidade de linhas ou de valores |
+| `SOMA` | `SUM` | soma dos valores |
+| `MED` | `AVG` | média aritmética |
+| `MIN` | `MIN` | menor valor |
+| `MAX` | `MAX` | maior valor |
+
+Aceitam `DISTINCT` como argumento (`CONTAR(Distinct cidade)`), que considera
+apenas os valores distintos.
+
 ## 11. Restrições
 
 ### 11.1 Na definição de coluna
@@ -654,16 +670,24 @@ As seguintes palavras são **reservadas** e não podem ser usadas como
 identificadores:
 
 ```
-adicionar     agrupar       alterar       apagar        banco
-chave         coluna        criar         dados         de
-definir       deletar       em            e             esvaziar
-estrangeira   excluir       inserir       mostrar       nao
-nulo          onde          ordenar       ou            para
-por           primaria      referencia    remover       renomear
-restricao     selecionar    tabela        unica         usar
-usar          valores       verificar     apagar
-distinct
+adicionar    agrupar      alterar      apagar       atualizar
+banco        caractere    chave        coluna       criar
+dados        de           definir      deletar      distinct
+e            em           estrangeira  esvaziar     excluir
+fixo         inserir      mostrar      nao          nulo
+onde         ordenar      ou           para         por
+primaria     referencia   remover      renomear     restricao
+selecionar   tabela       unica        usar         valores
+variavel     verificar    contar       max          med
+min          soma
 ```
+
+As palavras de **função agregada** (`contar`, `soma`, `med`, `min`, `max`) também
+são reservadas: não podem ser usadas como nome de tabela ou coluna.
+
+Os **tipos de dado** (`int`, `inteiro`, `texto`, `data`, `decimal`, `hora`,
+`data_hora`, `gint`, `cint`, `mint`) e os **modificadores** `caractere`,
+`variavel` e `fixo` também são reservados — ver Seção 10.
 
 A palavra `NULO` é reconhecida como o valor nulo (token `nulo`).
 

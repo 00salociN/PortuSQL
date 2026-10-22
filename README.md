@@ -76,9 +76,9 @@ e `SELECIONAR` são a mesma coisa.
 **Restrições** — `CHAVE PRIMARIA`, `NAO NULO`, `CHAVE ESTRANGEIRA`
 (com `REFERENCIA`), `UNICA` e `VERIFICAR` (CHECK).
 
-**Cláusulas e operadores** — `ONDE` (com `E`, `OU`, `NAO`, `PARECIDO COM`),
-`AGRUPAR POR`, `ORDENAR POR`, comparação (`=`, `>`, `<`, `>=`, `<=`, `<>`),
-aritmética (`+`, `-`, `*`, `/`) e concatenação (`||`).
+**Cláusulas e operadores** — `ONDE` (com `E`, `OU`, `NAO`, `NAO NULO`,
+`PARECIDO COM`), `AGRUPAR POR`, `ORDENAR POR`, comparação (`=`, `>`, `<`, `>=`,
+`<=`, `<>`), aritmética (`+`, `-`, `*`, `/`) e concatenação (`||`).
 
 **Funções agregadas** — `CONTAR`, `SOMA`, `MED`, `MIN`, `MAX` — e `DISTINCT`
 no `SELECIONAR`.
@@ -86,6 +86,12 @@ no `SELECIONAR`.
 ```text
 SELECIONAR turma_id, CONTAR(*) DE alunos AGRUPAR POR turma_id
 SELECIONAR DISTINCT cidade DE alunos
+```
+
+**`INSERIR` com várias linhas** — separe as tuplas por vírgula:
+
+```text
+INSERIR (id, nome, idade) EM alunos VALORES (1, 'João', 20), (2, 'Maria', 22)
 ```
 
 **Erros com posição** — toda mensagem de erro léxico, sintático, de tradução

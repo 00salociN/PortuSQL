@@ -496,7 +496,16 @@ Quando você quer **consultar/ler dados** do banco — é o comando mais usado d
 
 - A lista de colunas pode usar `*` (todas as colunas) ou nomes separados por vírgula.
 - `DISTINCT` remove linhas repetidas do resultado.
-- Também aceita **funções agregadas**: `CONTAR`, `SOMA`, `MED`, `MIN` e `MAX`.
+- Também aceita **funções agregadas**, traduzidas para o equivalente do H2:
+
+  | PortuSQL | SQL (H2) | O que calcula |
+  |---|---|---|
+  | `CONTAR(...)` | `COUNT(...)` | quantidade de linhas ou de valores |
+  | `SOMA(...)` | `SUM(...)` | soma dos valores |
+  | `MED(...)` | `AVG(...)` | média aritmética |
+  | `MIN(...)` | `MIN(...)` | menor valor |
+  | `MAX(...)` | `MAX(...)` | maior valor |
+
   Dentro delas o `DISTINCT` também vale: `CONTAR(Distinct cidade)`.
 - `ONDE <condicao>` filtra as linhas.
 - `AGRUPAR POR` agrupa o resultado por coluna(s).
