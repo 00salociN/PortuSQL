@@ -43,7 +43,7 @@ jobs:
       - name: Publicar o .jar puro (consumido pelo instalador do Windows)
         uses: actions/upload-artifact@v4
         with:
-          name: PortuSQL-raw.jar
+          name: PortuSQL-raw
           path: target/PortuSQL-1.0.0.jar
           if-no-files-found: error
           retention-days: 30
@@ -116,7 +116,7 @@ jobs:
       - name: Baixar o executavel ja compilado (jar puro, sem o prefixo de shell)
         uses: actions/download-artifact@v4
         with:
-          name: PortuSQL-raw.jar
+          name: PortuSQL-raw
 
       - name: Ler a versao do projeto
         id: meta
@@ -151,7 +151,13 @@ jobs:
         run: |
           $version = ([xml](Get-Content pom.xml)).project.version
           New-Item -ItemType Directory -Force -Path app | Out-Null
-          Copy-Item PortuSQL-raw.jar app/PortuSQL.jar
+          $jar = Get-ChildItem -Path . -Filter 'PortuSQL*.jar' | Select-Object -First 1
+          if (-not $jar) { throw 'O .jar puro nao foi baixado' }
+          # O jar do Windows precisa ser um zip puro (sem o prefixo de shell
+          # do inicializador do Linux): confere a assinatura PK do inicio.
+          $inicio = [System.IO.File]::ReadAllBytes($jar.FullName)[0..1]
+          if ($inicio[0] -ne 0x50 -or $inicio[1] -ne 0x4B) { throw 'O .jar tem prefixo e nao e um zip puro' }
+          Copy-Item $jar.FullName app/PortuSQL.jar
           jpackage `
             --type msi `
             --name PortuSQL `
