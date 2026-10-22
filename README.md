@@ -292,26 +292,6 @@ erro) e pelo auditor de documentação.
 
 ---
 
-## Roadmap
-
-Coisas que ainda não existem, em ordem de importance para quem está
-aprendendo:
-
-1. `JOIN` — a lacuna mais sentida de uma linguagem de consulta
-2. `HAVING` — filtrar grupos depois de `AGRUPAR POR`
-3. Subconsultas e `IN`
-4. `AUTO_INCREMENT` — hoje `CHAVE PRIMARIA` não gera id automático
-5. `LIMIT` e `OFFSET` — hoje a cláusula é aceita e descartada em silêncio
-6. Comentários na linguagem (`--` e `/* */`)
-7. Executar vários comandos separados por `;` na mesma sessão
-8. Funções de texto e data (`UPPER`, `LOWER`, `LENGTH`, `SUBSTRING`, `COALESCE`
-
-Na IDE:
-
-9. Salvar arquivo em disco, histórico de execuções e tela de configurações
-10. Interromper de fato uma execução em andamento (o botão **Parar**)
-11. Aba **Plano de Execução** com o SQL gerado passo a passo
-12. Suíte de testes automatizados (JUnit já está reservado no `pom.xml`)
 
 ---
 
