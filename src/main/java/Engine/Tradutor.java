@@ -201,9 +201,13 @@ public class Tradutor {
         	if(inserir.getColunas() != null && !inserir.getColunas().isEmpty()) {
         		banco.append(" (").append(String.join(", ", inserir.getColunas())).append(")");
         	}
-        	banco.append(" Values (");
-        	banco.append(String.join(", ", inserir.getValores()));
-        	banco.append(");");
+        	banco.append(" Values ");
+        	List<String> grupos = new ArrayList<>();
+        	for (List<String> linha : inserir.getValores()) {
+        		grupos.add("(" + String.join(", ", linha) + ")");
+        	}
+        	banco.append(String.join(", ", grupos));
+        	banco.append(";");
         	return banco.toString();
         }
         private String traducaoMostrarTabela(MostrarTabela mostrar) {
@@ -325,6 +329,9 @@ public class Tradutor {
         private String traduzirCondicaoSemAspas(String condicao){
             String resultado = condicao;
             resultado = resultado.replaceAll("(?i)PARECIDO COM", "LIKE");
+            // "NAO NULO" precisa virar "IS NOT NULL": o "NOT NULO" gerado
+            // antes nao e valido no SQL (erro de sintaxe no H2).
+            resultado = resultado.replaceAll("(?i)\\bNAO\\s+NULO\\b", "IS NOT NULL");
             resultado = resultado.replaceAll("(?i)\\bE\\b", "AND");
             resultado = resultado.replaceAll("(?i)\\bOU\\b", "OR");
             resultado = resultado.replaceAll("(?i)\\bNAO\\b", "NOT");

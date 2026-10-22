@@ -68,6 +68,7 @@ public class KW {
         palavras_simples.put("caractere", TipoToken.palavra_chave);
         palavras_simples.put("variavel", TipoToken.palavra_chave);
         palavras_simples.put("fixo", TipoToken.palavra_chave);
+        palavras_simples.put("distinct", TipoToken.palavra_chave);
         palavras_simples.put("", TipoToken.palavra_chave);
         
         tipo_dados.put("int", TipoToken.tipo_dado);

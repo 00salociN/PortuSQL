@@ -383,6 +383,7 @@ SQL H2  : Drop Table alunos;
 ```
 INSERIR EM <nome_tabela> VALORES ( <valor>, <valor>, ... )
 INSERIR ( <coluna>, <coluna>, ... ) EM <nome_tabela> VALORES ( <valor>, <valor>, ... )
+INSERIR ( <coluna>, <coluna>, ... ) EM <nome_tabela> VALORES ( <valor>, ... ), ( <valor>, ... )
 ```
 
 **Quando usar**
@@ -394,6 +395,7 @@ Quando você quer **adicionar uma linha nova** com dados em uma tabela.
 - Sem lista de colunas: os valores devem seguir a ordem das colunas da tabela.
 - Com lista de colunas: você escolhe quais colunas receberão os valores (as outras ficam com valor padrão/NULL).
 - Valores aceitos: **números** (`20`, `3.14`) e **textos entre aspas simples** (`'João'`).
+- Várias linhas podem ser inseridas de uma vez: separe as tuplas por **vírgula**.
 
 **Exemplo**
 
@@ -405,6 +407,11 @@ SQL H2  : Insert Into alunos (nome, idade) Values ('Joao', 20);
 ```text
 PortuSQL: INSERIR EM alunos VALORES (1, 'Joao', 20)
 SQL H2  : Insert Into alunos Values (1, 'Joao', 20);
+```
+
+```text
+PortuSQL: INSERIR (id, nome) EM alunos VALORES (2, 'Maria'), (3, 'Ana')
+SQL H2  : Insert Into alunos (id, nome) Values (2, 'Maria'), (3, 'Ana');
 ```
 
 > ⚠️ **Atenção:** a sintaxe **não** inclui um `INSERIR VALORES` sem o `EM` — a ordem obrigatória é `... EM <tabela> VALORES (...)`. O `VALORES` isolado de `EM` não é aceito pelo Parser.
@@ -475,7 +482,7 @@ SQL H2  : Delete From alunos where idade > 18;
 **Sintaxe**
 
 ```
-SELECIONAR <coluna1, coluna2, ... | *> DE <nome_tabela>
+SELECIONAR [DISTINCT] <coluna1, coluna2, ... | *> DE <nome_tabela>
          [ONDE <condicao>]
          [AGRUPAR POR <coluna1, coluna2, ...>]
          [ORDENAR POR <coluna1, coluna2, ...>]
@@ -488,6 +495,9 @@ Quando você quer **consultar/ler dados** do banco — é o comando mais usado d
 **Explicação**
 
 - A lista de colunas pode usar `*` (todas as colunas) ou nomes separados por vírgula.
+- `DISTINCT` remove linhas repetidas do resultado.
+- Também aceita **funções agregadas**: `CONTAR`, `SOMA`, `MED`, `MIN` e `MAX`.
+  Dentro delas o `DISTINCT` também vale: `CONTAR(Distinct cidade)`.
 - `ONDE <condicao>` filtra as linhas.
 - `AGRUPAR POR` agrupa o resultado por coluna(s).
 - `ORDENAR POR` ordena o resultado por coluna(s).
@@ -508,6 +518,16 @@ SQL H2  : Select nome, idade from alunos where idade > 18 AND status LIKE 'ativo
 ```text
 PortuSQL: SELECIONAR cidade DE alunos AGRUPAR POR cidade ORDENAR POR cidade
 SQL H2  : Select cidade from alunos group by cidade order by cidade;
+```
+
+```text
+PortuSQL: SELECIONAR turma_id, CONTAR(*) DE alunos AGRUPAR POR turma_id
+SQL H2  : Select turma_id, COUNT(*) from alunos group by turma_id;
+```
+
+```text
+PortuSQL: SELECIONAR DISTINCT cidade DE alunos
+SQL H2  : Select Distinct cidade from alunos;
 ```
 
 ---
@@ -626,6 +646,8 @@ Tipos reconhecidos pelo analisador (podem ser usados no `CRIAR TABELA` e em colu
 | `decimal` | `decimal` | número decimal (precisão definida pelo banco) |
 | `hora` | `time` | hora |
 | `data_hora` | `timestamp` | data e hora juntas |
+| `CARACTERE VARIAVEL(n)` | `varchar(n)` | texto com limite de tamanho |
+| `CARACTERE FIXO(n)` | `char(n)` | texto de tamanho fixo |
 | `gint`, `cint`, `mint` | — | reconhecidos como tipo, mas **sem tradução** no H2 (erro na tradução) |
 
 Outros nomes (`flutuante`, `booleano`, `binario`, `enum`, `real`, `numerico`) existem no dicionário do Tradutor, mas o Lexer ainda não os reconhece como tipo de dado — na prática eles são tratados como identificadores.
@@ -658,7 +680,7 @@ Restrições que podem acompanhar colunas ou serem adicionadas depois:
 | `OU` | `OR` |
 | `NAO` | `NOT` |
 | `PARECIDO COM` | `LIKE` |
-| `NAO NULO` | `NOT NULO` |
+| `NAO NULO` | `IS NOT NULL` |
 
 **Operadores de comparação/atribuição:** `=`, `>`, `<`, `>=`, `<=`, `<>` (diferente).
 

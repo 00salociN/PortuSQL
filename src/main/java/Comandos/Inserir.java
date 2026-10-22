@@ -32,7 +32,7 @@ public class Inserir implements Comando{
     private final List<String> colunas;
     
     /** listas os valores na ordem da coluna */
-    private final List<String> valores;
+    private final List<List<String>> valores;
 
     /**
      * construtor que inicializa os atributos
@@ -40,7 +40,7 @@ public class Inserir implements Comando{
      * @param colunas colunas onde os dados serão inseridos
      * @param valores valores dos dados inseridos
      */
-    public Inserir(String tabela, List<String> colunas, List<String> valores) {
+    public Inserir(String tabela, List<String> colunas, List<List<String>> valores) {
         this.tabela = tabela;
         this.colunas = colunas;
         this.valores = valores;
@@ -66,7 +66,7 @@ public class Inserir implements Comando{
      * @return {@link List} contendo os valores que serão atribuidos as colunas
      * 		serão renderizados na ordem que as colunas foram escritas, retorna uma lista
      */
-    public List<String> getValores() {
+    public List<List<String>> getValores() {
         return valores;
     }
 

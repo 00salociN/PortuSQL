@@ -5,7 +5,9 @@
 /bin/
 /build/
 /target/
-./.mvn/
+
+# Gerado pelo maven-shade-plugin (build local, nao versionar)
+/dependency-reduced-pom.xml
 
 # Metadados do Eclipse (opcional, remova se quiser versionar)
 .settings/

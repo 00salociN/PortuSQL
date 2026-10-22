@@ -274,9 +274,11 @@ encontrado fora de um literal de texto.
 ### 7.5 INSERIR
 
 *Inserir* ::= `INSERIR` [`(` *ListaIdentificadores* `)`] `EM` *Identificador*
-              `VALORES` `(` *ListaValores* `)`
+              `VALORES` *TuplaValores* (`,` *TuplaValores*)*
 
 *ListaIdentificadores* ::= *Identificador* (`,` *Identificador*)*
+
+*TuplaValores* ::= `(` *ListaValores* `)`
 
 *ListaValores* ::= *Valor* (`,` *Valor*)*
 
@@ -295,14 +297,18 @@ encontrado fora de um literal de texto.
 
 ### 7.8 SELECIONAR
 
-*Selecionar* ::= `SELECIONAR` *ListaColunas* `DE` *Identificador*
+*Selecionar* ::= `SELECIONAR` [ `DISTINCT` ] *ListaColunas* `DE` *Identificador*
                 [ `ONDE` *Condicao* ]
                 [ `AGRUPAR` `POR` *ListaColunas* ]
                 [ `ORDENAR` `POR` *ListaColunas* ]
 
-*ListaColunas* ::= (*Asterisco* | *Identificador*) (`,` (*Asterisco* | *Identificador*))*
+*ListaColunas* ::= (*Asterisco* | *Identificador* | *FuncaoAgregada*)
+                   (`,` (*Asterisco* | *Identificador* | *FuncaoAgregada*))*
 
 *Asterisco* ::= `*`
+
+*FuncaoAgregada* ::= (`CONTAR` | `SOMA` | `MED` | `MIN` | `MAX`)
+                    [ `DISTINCT` ] `(` (*Asterisco* | *Identificador*) `)`
 
 ### 7.9 MOSTRAR TABELA
 
@@ -455,6 +461,8 @@ INSERT INTO <tabela> [(<coluna>, ...)] VALUES (<valor>, ...);
 ```
 
 - Valores de texto são gerados entre aspas simples.
+- Várias linhas podem ser inseridas de uma vez, separando as tuplas por
+  vírgula: `VALUES (<valor>, ...), (<valor>, ...);`.
 
 ### 9.14 ATUALIZAR
 
@@ -509,6 +517,8 @@ pelo tradutor.
 ```
 TipoDado ::= "int" | "inteiro" | "texto" | "data" | "decimal"
            | "hora" | "data_hora" | "gint" | "cint" | "mint"
+           | "caractere variavel" "(" numero ")"
+           | "caractere fixo" "(" numero ")"
 ```
 
 ### 10.2 Mapeamento para H2
@@ -521,6 +531,8 @@ TipoDado ::= "int" | "inteiro" | "texto" | "data" | "decimal"
 | `decimal` | `decimal` |
 | `hora` | `time` |
 | `data_hora` | `timestamp` |
+| `caractere variavel(n)` | `varchar(n)` |
+| `caractere fixo(n)` | `char(n)` |
 | `gint`, `cint`, `mint` | *(sem mapeamento — erro de tradução)* |
 
 É um **Erro de Tradução** se um `TipoDado` sem correspondência no H2 for usado.
@@ -578,7 +590,7 @@ Na tradução de uma *Condicao*, as seguintes substituições são aplicadas:
 | `E` | `AND` |
 | `OU` | `OR` |
 | `NAO` | `NOT` |
-| `NAO NULO` | `NOT NULO` |
+| `NAO NULO` | `IS NOT NULL` |
 | `PARECIDO COM` | `LIKE` |
 
 ### 12.3 AGRUPAR POR e ORDENAR POR
@@ -650,6 +662,7 @@ nulo          onde          ordenar       ou            para
 por           primaria      referencia    remover       renomear
 restricao     selecionar    tabela        unica         usar
 usar          valores       verificar     apagar
+distinct
 ```
 
 A palavra `NULO` é reconhecida como o valor nulo (token `nulo`).

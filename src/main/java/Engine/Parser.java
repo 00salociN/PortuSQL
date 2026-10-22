@@ -258,6 +258,19 @@ public class Parser {
 		esperarLexema("EM");
 		String tabela = esperarIdentificador();
 		esperarLexema("VALORES");
+		
+		List<List<String>> valores = new ArrayList<>();
+		valores.add(lerListaValores());
+		
+		while (tokenAtual().getTipo() == TipoToken.virgula) {
+			avancar();
+			valores.add(lerListaValores());
+		}
+		
+		return new Inserir(tabela, colunas, valores);
+	}
+	
+	private List<String> lerListaValores() {
 		esperarTipo(TipoToken.parenteses_esquerda, "(");
 		List<String> valores = new ArrayList<>();
 		valores.add(esperarValor());
@@ -266,7 +279,7 @@ public class Parser {
 			valores.add(esperarValor());
 		}
 		esperarTipo(TipoToken.parenteses_direita, ")");
-		return new Inserir(tabela, colunas, valores);
+		return valores;
 	}
 
 	/**
