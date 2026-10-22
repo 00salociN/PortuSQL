@@ -113,10 +113,10 @@ jobs:
           java-version: '17'
           cache: maven
 
-      - name: Baixar o executavel ja compilado
+      - name: Baixar o executavel ja compilado (jar puro, sem o prefixo de shell)
         uses: actions/download-artifact@v4
         with:
-          name: PortuSQL.jar
+          name: PortuSQL-raw.jar
 
       - name: Ler a versao do projeto
         id: meta
@@ -151,7 +151,7 @@ jobs:
         run: |
           $version = ([xml](Get-Content pom.xml)).project.version
           New-Item -ItemType Directory -Force -Path app | Out-Null
-          Copy-Item PortuSQL.jar app/PortuSQL.jar
+          Copy-Item PortuSQL-raw.jar app/PortuSQL.jar
           jpackage `
             --type msi `
             --name PortuSQL `
