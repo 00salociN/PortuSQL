@@ -40,14 +40,62 @@ jobs:
           unzip -l target/PortuSQL-*.jar | grep -q 'org/h2/Driver.class'
           echo "Manifest e H2 embarcado: OK"
 
+      - name: Publicar o .jar puro (consumido pelo instalador do Windows)
+        uses: actions/upload-artifact@v4
+        with:
+          name: PortuSQL-raw.jar
+          path: target/PortuSQL-1.0.0.jar
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Preparar o executavel
-        run: cp target/PortuSQL-*.jar target/PortuSQL.jar
+        run: |
+          set -euo pipefail
+          jar=$(ls target/PortuSQL-[0-9]*.jar | head -n 1)
+          # Um .jar e um ZIP: no Linux, sem isto, o gerenciador de arquivos
+          # ABRE O CONTEUDO do jar em vez de executar. Com o prefixo de
+          # shell o arquivo passa a ser reconhecido como programa
+          # executavel, e o JVM continua lendo o zip normalmente.
+          cat > target/_prefixo.sh <<'PREFIXO'
+          #!/bin/sh
+          # PortuSQL - inicializador para Linux.
+          case "$0" in
+            */*) self="$0" ;;
+            *)   self="$(command -v -- "$0" 2>/dev/null)" ;;
+          esac
+          exec java -jar "$self" "$@"
+          PREFIXO
+          cat target/_prefixo.sh "$jar" > target/PortuSQL.jar
+          chmod +x target/PortuSQL.jar
+          rm target/_prefixo.sh
+          echo "Executavel: $(ls -l target/PortuSQL.jar)"
+
+      - name: Verificar que o executavel inicia
+        run: |
+          set -uo pipefail
+          timeout 20 java -jar target/PortuSQL.jar > /tmp/saida.log 2>&1 || true
+          if grep -qE 'no main manifest attribute|Could not find or load main class|UnsupportedClassVersionError|Invalid or corrupt jarfile' /tmp/saida.log; then
+            echo "::error::o executavel nao iniciou"; cat /tmp/saida.log; exit 1
+          fi
+          if grep -q 'HeadlessException' /tmp/saida.log; then
+            echo "OK: Main-Class resolvida (HeadlessException esperado: o CI nao tem display)"
+          else
+            echo "OK: o executavel iniciou"
+          fi
 
       - name: Publicar o artefato .jar
         uses: actions/upload-artifact@v4
         with:
           name: PortuSQL.jar
           path: target/PortuSQL.jar
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publicar o instalador para Linux
+        uses: actions/upload-artifact@v4
+        with:
+          name: instalar-linux.sh
+          path: tools/instalar-linux.sh
           if-no-files-found: error
           retention-days: 30
 

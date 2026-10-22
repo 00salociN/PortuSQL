@@ -209,6 +209,29 @@ Baixe o `PortuSQL.jar` e rode:
 java -jar PortuSQL.jar
 ```
 
+### Linux
+
+O `.jar` também roda no Linux (e no macOS). Para abrir com dois cliques, como
+qualquer outro programa, use o instalador que vai junto na release:
+
+```bash
+chmod +x instalar-linux.sh
+./instalar-linux.sh PortuSQL.jar
+```
+
+Ele instala o executável em `~/.local/share/portusql/`, o ícone e um atalho no
+menu de aplicações — depois é só procurar por **PortuSQL**.
+
+> **Por que o duplo clique no `.jar` não funcionava?** Um `.jar` é um arquivo
+> ZIP, e no Linux o gerenciador de arquivos abre arquivos ZIP para mostrar o
+> conteúdo, em vez de executá-los — daí a "pasta" aparecendo. Por isso o `.jar`
+> publicado começa com um inicializador de shell: continua sendo um jar
+> perfeitamente válido para a JVM (`java -jar` funciona igual), mas passa a ser
+> reconhecido como programa executável. Depois de um `chmod +x`, o duplo
+> clique funciona.
+>
+> No Windows o caminho é o instalador `.msi`, que já traz o Java embutido.
+
 ### A partir do código
 
 ```bash
@@ -235,7 +258,7 @@ src/main/java/
 └── Imagens/      logo da aplicação
 
 src/main/resources/    ícone da aplicação
-tools/                 auditoria da documentação contra o código
+tools/                 auditor da documentação e instalador do Linux
 .github/workflows/     build do .jar e do instalador .msi
 .github/release-notes/ descrição de cada release
 ```
