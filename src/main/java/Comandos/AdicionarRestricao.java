@@ -32,7 +32,7 @@ package Comandos;
  * 		pois a gramática é diferente o suficiente para não respeitar as outras acima
  * 
  * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.0
+ * @version 1.0.0
  * @see Comando
  * @see AdicionarRestricaoVerificar
  */

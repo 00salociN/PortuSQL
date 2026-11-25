@@ -18,7 +18,7 @@ import java.util.List;
  *      {@link DefinicaoColuna} para ter um padrão sobre o que é uma coluna
  * 
  * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.0
+ * @version 1.0.0
  * @see Comando
  * @see DefinicaoColuna
  */

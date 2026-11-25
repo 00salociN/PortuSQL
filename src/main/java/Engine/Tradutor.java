@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  * traducao conforme a classe do comando.
  *
  * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.0
+ * @version 1.1.0
  * @see Comando
  * @see Parser
  */
@@ -362,7 +362,7 @@ public class Tradutor {
         	}
             if (tipoSql == null) {
                 throw new IllegalArgumentException(
-                "Tipo de dado não encontradi" + coluna.getTipoDado());
+                "Tipo de dado não encontrado: " + coluna.getTipoDado());
             }
         	
             StringBuilder definicao = new StringBuilder()

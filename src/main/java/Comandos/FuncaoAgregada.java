@@ -7,6 +7,7 @@ package Comandos;
 /**
  *
  * @author Etec
+ * @version 1.0.0
  */
 public class FuncaoAgregada { //preciso encontrar um nome para essa classe
     

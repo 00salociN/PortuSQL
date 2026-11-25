@@ -18,7 +18,7 @@ import java.util.List;
  * <p>implementa a interface {@link Comando}
  * 
  * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.0
+ * @version 1.0.0
  * @see Comando
  */
 public class Selecionar implements Comando{

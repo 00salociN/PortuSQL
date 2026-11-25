@@ -6,7 +6,7 @@ package Comandos;
  * <p>esta classe não é um comando, mas sim uma definição padrão para representar uma coluna
  * 
  * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.0
+ * @version 1.0.0
  */
 public class DefinicaoColuna {
     /*

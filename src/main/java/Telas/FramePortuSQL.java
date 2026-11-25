@@ -6,21 +6,16 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import Comandos.Comando;
 import Conexao.Conexao;
-import Conexao.Executor;
 import Conexao.Resultado;
-import Engine.Lexer;
-import Engine.Parser;
-import Engine.Token;
-import Engine.Tradutor;
+import PortuSQL.PortuSQL.Formatador;
+import PortuSQL.PortuSQL.Interpretador;
+import PortuSQL.PortuSQL.ResultadoExecucao;
 
 /**
  * Janela principal do PortuSQL.
@@ -32,10 +27,10 @@ import Engine.Tradutor;
  * porque e ela que sabe O QUE fazer com cada clique (as telas apenas
  * avisam QUAL elemento foi clicado).
  *
- * <p>a execucao de uma consulta do editor passa pelo motor completo:
- * {@link Lexer} → {@link Parser} → {@link Tradutor} → {@link Executor},
- * e o resultado (grade da consulta ou linhas afetadas) vai para a aba
- * "Resultados" do editor, com o SQL gerado na aba "Mensagens".
+ * <p>a execucao de uma consulta do editor passa pelo {@link Interpretador},
+ * que reune lexer, parser, tradutor e executor, e devolve o tempo gasto e o
+ * SQL gerado. O resultado (grade da consulta ou linhas afetadas) vai para a
+ * aba "Resultados" do editor, com o SQL gerado na aba "Mensagens".
  *
  * <p>por seguranca o IDE nunca abre sobre o banco real do usuario:
  * ele usa o banco dedicado {@code teste_portusql}, o mesmo compromisso
@@ -43,7 +38,7 @@ import Engine.Tradutor;
  * novo) e que passa a usar o banco escolhido.
  *
  * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.0
+ * @version 1.1.0
  */
 public class FramePortuSQL extends JFrame implements HomePanelListener, IdePanelListener {
 
@@ -226,18 +221,15 @@ public class FramePortuSQL extends JFrame implements HomePanelListener, IdePanel
             return;
         }
         try {
-            List<Token> tokens = new Lexer(sql).tokenizar();
-            Comando comando = new Parser(tokens).parserComando();
-            String sqlH2 = new Tradutor().traducao(comando);
-
-            long inicio = System.nanoTime();
-            Resultado resultado = new Executor().executar(sqlH2);
-            long ms = (System.nanoTime() - inicio) / 1_000_000;
+            ResultadoExecucao execucao = Interpretador.executar(sql);
+            Resultado resultado = execucao.getResultado();
+            long ms = execucao.getMilissegundos();
+            String sqlH2 = execucao.getSqlH2();
 
             String rotulo = unica ? "Linha executada" : "Consulta executada";
             String direita = "Tempo: " + ms + " ms";
             if (resultado.isConsulta()) {
-                ide.exibirResultado(formatarConsulta(resultado));
+                ide.exibirResultado(Formatador.consulta(resultado));
                 direita += "    Linhas: " + resultado.getLinhas().size();
             } else {
                 ide.exibirResultado(resultado.getLinhasAfetadas() + " linha(s) afetada(s).");
@@ -253,72 +245,5 @@ public class FramePortuSQL extends JFrame implements HomePanelListener, IdePanel
             // suportado) sao RuntimeException; o SQLException vem do H2
             ide.exibirMensagem("ERRO: " + erro.getMessage());
         }
-    }
-
-    /**
-     * transforma um {@link Resultado} de consulta em uma grade de texto
-     * com colunas alinhadas, como o psql do PostgreSQL.
-     */
-    private String formatarConsulta(Resultado r) {
-        List<String> colunas = r.getColunas();
-        List<List<Object>> linhas = r.getLinhas();
-        if (colunas == null || colunas.isEmpty()) {
-            return "(consulta sem colunas)";
-        }
-
-        List<String[]> grade = new ArrayList<>();
-        grade.add(colunas.toArray(new String[0]));
-        int exibidas = Math.min(linhas.size(), 1000);
-        for (int i = 0; i < exibidas; i++) {
-            List<Object> linha = linhas.get(i);
-            String[] celulas = new String[colunas.size()];
-            for (int c = 0; c < colunas.size(); c++) {
-                Object valor = c < linha.size() ? linha.get(c) : null;
-                celulas[c] = valor == null ? "NULL" : String.valueOf(valor);
-            }
-            grade.add(celulas);
-        }
-
-        int[] larguras = new int[colunas.size()];
-        for (String[] linha : grade) {
-            for (int c = 0; c < larguras.length; c++) {
-                larguras[c] = Math.max(larguras[c], linha[c].length());
-            }
-        }
-
-        StringBuilder sb = new StringBuilder();
-        adicionarLinha(sb, grade.get(0), larguras);
-        adicionarSeparador(sb, larguras);
-        for (int i = 1; i < grade.size(); i++) {
-            adicionarLinha(sb, grade.get(i), larguras);
-        }
-        if (linhas.size() > exibidas) {
-            sb.append("... (").append(linhas.size() - exibidas)
-                    .append(" linhas n\u00e3o exibidas)\n");
-        }
-        return sb.toString();
-    }
-
-    private void adicionarLinha(StringBuilder sb, String[] linha, int[] larguras) {
-        for (int c = 0; c < linha.length; c++) {
-            sb.append("| ").append(completar(linha[c], larguras[c])).append(' ');
-        }
-        sb.append("|\n");
-    }
-
-    private void adicionarSeparador(StringBuilder sb, int[] larguras) {
-        for (int largura : larguras) {
-            sb.append('+');
-            sb.append("-".repeat(largura + 2));
-        }
-        sb.append("+\n");
-    }
-
-    private String completar(String texto, int largura) {
-        StringBuilder sb = new StringBuilder(texto);
-        while (sb.length() < largura) {
-            sb.append(' ');
-        }
-        return sb.toString();
     }
 }

@@ -26,7 +26,7 @@ import javax.swing.border.EmptyBorder;
  * topo, banco abaixo e configurações por último.
  *
  * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.0
+ * @version 1.0.0
  */
 public class Sidebar extends JPanel {
 

@@ -9,9 +9,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Versao a empacotar (ex.: 1.0.0)'
+        description: 'Versao a empacotar (ex.: 1.1.0)'
         required: true
-        default: '1.0.0'
+        default: '1.1.0'
 
 permissions:
   contents: read
@@ -38,13 +38,14 @@ jobs:
           set -euo pipefail
           unzip -p target/PortuSQL-*.jar META-INF/MANIFEST.MF | grep -q 'Main-Class: PortuSQL.PortuSQL.App'
           unzip -l target/PortuSQL-*.jar | grep -q 'org/h2/Driver.class'
-          echo "Manifest e H2 embarcado: OK"
+          unzip -p target/PortuSQL-*.jar version.properties | grep -q '^versao='
+          echo "Manifest, H2 embarcado e versao de execucao: OK"
 
       - name: Publicar o .jar puro (consumido pelo instalador do Windows)
         uses: actions/upload-artifact@v4
         with:
           name: PortuSQL-raw
-          path: target/PortuSQL-1.0.0.jar
+          path: target/PortuSQL-[0-9]*.jar
           if-no-files-found: error
           retention-days: 30
 

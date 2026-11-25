@@ -7,7 +7,7 @@ package Engine;
  * que orientam o {@link Parser} na montagem do comando.
  *
  * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.0
+ * @version 1.0.0
  * @see Token
  * @see Lexer
  */

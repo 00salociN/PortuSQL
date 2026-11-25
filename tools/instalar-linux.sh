@@ -74,7 +74,6 @@ Comment=SQL em portugues para o ensino de bancos de dados
 Exec=java -jar "$DESTINO/PortuSQL.jar"
 TryExec=java
 Icon=$ICONES/portusql.ico
-Terminal=false
 Categories=Development;Database;Education;
 Keywords=SQL;banco de dados;H2;PortuSQL;educacao;
 StartupNotify=true

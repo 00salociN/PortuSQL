@@ -1,0 +1,3 @@
+# Alguns arquivos Java legados usam CRLF; nao tratar o CR final como erro.
+# As demais regras de whitespace continuam valendo para todo o codigo.
+*.java whitespace=cr-at-eol,blank-at-eol,blank-at-eof,space-before-tab

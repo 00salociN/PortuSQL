@@ -17,7 +17,7 @@ import java.util.List;
  * a posicao (linha e coluna) do problema.
  *
  * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.0
+ * @version 1.1.0
  * @see Lexer
  * @see Comando
  * @see ErroParser
@@ -78,36 +78,42 @@ public class Parser {
 	 */
 	private DefinicaoColuna parserDefinicaoColuna() {
 		String nomeColuna = esperarIdentificador();
-		Token TokenTipo = tokenAtual();
+		Token tokenTipo = tokenAtual();
 		String tipoDado;
-		
-		if(TokenTipo.getTipo() == TipoToken.palavra_chave && TokenTipo.getLexema().equalsIgnoreCase("CARACTERE")){
+
+		// CARACTERE/TEXTO VARIAVEL(n) -> VARCHAR(n); FIXO(n) -> CHAR(n).
+		// TEXTO sem tamanho continua valendo como tipo simples.
+		boolean textoComTamanho = tokenTipo.getLexema().equalsIgnoreCase("CARACTERE")
+				|| tokenTipo.getLexema().equalsIgnoreCase("TEXTO");
+		if (tokenTipo.getTipo() == TipoToken.tipo_dado && textoComTamanho) {
+			String nomeTipo = tokenTipo.getLexema();
 			avancar();
-			if(tokenAtual().getTipo() == TipoToken.palavra_chave && tokenAtual().getLexema().equalsIgnoreCase("VARIAVEL")) {
+			Token proximo = tokenAtual();
+			boolean variavel = proximo.getTipo() == TipoToken.tipo_dado
+					&& proximo.getLexema().equalsIgnoreCase("VARIAVEL");
+			boolean fixo = proximo.getTipo() == TipoToken.tipo_dado
+					&& proximo.getLexema().equalsIgnoreCase("FIXO");
+			if (variavel || fixo) {
+				String subtipo = variavel ? "VARIAVEL" : "FIXO";
 				avancar();
 				esperarTipo(TipoToken.parenteses_esquerda, "(");
-				if(tokenAtual().getTipo() != TipoToken.numerico) {
-					throw new ErroParser("Esperarav um número após '(' em CARACTERE VARIAVEL", tokenAtual().getLinha(), tokenAtual().getColuna());
+				if (tokenAtual().getTipo() != TipoToken.numerico) {
+					throw new ErroParser("Esperava um número após '(' em " + subtipo,
+							tokenAtual().getLinha(), tokenAtual().getColuna());
 				}
 				String tamanho = tokenAtual().getLexema();
 				avancar();
 				esperarTipo(TipoToken.parenteses_direita, ")");
-				tipoDado = "VARCHAR(" + tamanho + ")";
-			} else if(tokenAtual().getTipo() == TipoToken.palavra_chave && tokenAtual().getLexema().equalsIgnoreCase("FIXO")) {
-				avancar();
-				esperarTipo(TipoToken.parenteses_esquerda, "(");
-				if(tokenAtual().getTipo() != TipoToken.numerico) {
-					throw new ErroParser("Esperava um número após '(' em CARACTERE FIXO", tokenAtual().getLinha(), tokenAtual().getColuna());
-				}
-				String tamanho = tokenAtual().getLexema();
-				avancar();
-				esperarTipo(TipoToken.parenteses_direita, ")");
-				tipoDado = "CHAR(" + tamanho + ")";
+				tipoDado = (variavel ? "VARCHAR(" : "CHAR(") + tamanho + ")";
 			} else {
-				throw new ErroParser("Esperava 'VARIAVEL' ou 'FIXO' após 'CARACTERE'", tokenAtual().getLinha(), tokenAtual().getColuna());				
+				if (nomeTipo.equalsIgnoreCase("CARACTERE")) {
+					throw new ErroParser("Esperava 'VARIAVEL' ou 'FIXO' após 'CARACTERE'",
+							tokenAtual().getLinha(), tokenAtual().getColuna());
+				}
+				tipoDado = nomeTipo;
 			}
-		} else if (TokenTipo.getTipo() == TipoToken.tipo_dado) {
-			tipoDado = TokenTipo.getLexema();
+		} else if (tokenTipo.getTipo() == TipoToken.tipo_dado) {
+			tipoDado = tokenTipo.getLexema();
 			avancar();
 		} else {
 			throw new ErroParser("Esperava um tipo de dado após o nome da coluna '" + nomeColuna + "'", tokenAtual().getLinha(), tokenAtual().getColuna());

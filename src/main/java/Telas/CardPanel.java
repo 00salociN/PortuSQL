@@ -24,7 +24,7 @@ import javax.swing.SwingConstants;
  * hover), e dispara a acao passada no construtor ao ser clicado.
  *
  * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.0
+ * @version 1.0.0
  */
 public class CardPanel extends JPanel {
 

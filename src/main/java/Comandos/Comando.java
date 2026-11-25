@@ -2,7 +2,7 @@ package Comandos;
 
 /**
  * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.0
+ * @version 1.0.0
  * 
  * é a interface que define um "contrato" para todos os comandos do PortuSQL
  * 

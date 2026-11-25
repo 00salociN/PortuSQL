@@ -14,7 +14,7 @@ package Telas;
  * configuracoes) sao os mesmos da Homepage e do editor de consultas.
  *
  * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.0
+ * @version 1.0.0
  */
 public interface HomePanelListener extends SidebarListener {
 

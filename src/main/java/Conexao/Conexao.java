@@ -24,7 +24,7 @@ import java.util.List;
  * o arquivo do banco e gerado pelo proprio driver.
  *
  * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.0
+ * @version 1.1.0
  * @see Executor
  */
 public class Conexao {
@@ -52,6 +52,19 @@ public class Conexao {
      */
     public static String caminhoBanco(String nomeBanco) {
     	return PASTA_BASE + File.separator + nomeBanco;
+    }
+
+    /**
+     * abre uma conexao isolada com o banco informado, sem trocar a conexao
+     * global nem o nome do banco atual. Usada para ler metadados (DER) sem
+     * interferir no comando que o usuario esta executando no IDE.
+     * @param nomeBanco nome do banco
+     * @return conexao H2 isolada (quem chama deve fechar)
+     * @throws SQLException se a conexao falhar
+     */
+    public static Connection abrirConexaoIsolada(String nomeBanco) throws SQLException {
+        new File(PASTA_BASE).mkdirs();
+        return DriverManager.getConnection("jdbc:h2:" + caminhoBanco(nomeBanco), USER, PASSWORD);
     }
 
     /**
@@ -256,7 +269,7 @@ public class Conexao {
      * @param tipoH2 tipo como o H2 reporta em INFORMATION_SCHEMA.COLUMNS
      * @return nome do tipo em portugues (ou o tipo original)
      */
-    private static String traduzirTipo(String tipoH2) {
+    public static String traduzirTipo(String tipoH2) {
     	if (tipoH2 == null) {
     		return "";
     	}

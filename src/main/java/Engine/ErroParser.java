@@ -7,7 +7,7 @@ package Engine;
  * <p>a mensagem inclui a posicao (linha e coluna) onde o erro foi encontrado.
  *
  * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.0
+ * @version 1.0.0
  * @see Parser
  */
 public class ErroParser extends RuntimeException{

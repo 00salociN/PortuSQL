@@ -5,7 +5,7 @@ package Engine;
  * Um token carrega o texto original (lexema), seu tipo e sua posicao.
  *
  * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.0
+ * @version 1.0.0
  * @see TipoToken
  */
 public class Token {

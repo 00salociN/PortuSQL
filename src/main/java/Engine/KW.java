@@ -13,7 +13,7 @@ import java.util.Set;
  * palavra-chave, tipo de dado ou apenas um identificador.
  *
  * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.0
+ * @version 1.1.0
  * @see Lexer
  */
 public class KW {
@@ -27,67 +27,18 @@ public class KW {
     private static final Map<String, TipoToken> funcoes_agregadas = new HashMap<>();
 
     static {
-        palavras_simples.put("criar", TipoToken.palavra_chave);
-        palavras_simples.put("tabela", TipoToken.palavra_chave);
-        palavras_simples.put("selecionar", TipoToken.palavra_chave);
-        palavras_simples.put("de", TipoToken.palavra_chave);
-        palavras_simples.put("onde", TipoToken.palavra_chave);
-        palavras_simples.put("ordenar", TipoToken.palavra_chave);
-        palavras_simples.put("por", TipoToken.palavra_chave);
-        palavras_simples.put("agrupar", TipoToken.palavra_chave);
-        palavras_simples.put("inserir", TipoToken.palavra_chave);
-        palavras_simples.put("valores", TipoToken.palavra_chave);
-        palavras_simples.put("atualizar", TipoToken.palavra_chave);
-        palavras_simples.put("deletar", TipoToken.palavra_chave);
-        palavras_simples.put("apagar", TipoToken.palavra_chave);
-        palavras_simples.put("e", TipoToken.palavra_chave);
-        palavras_simples.put("ou", TipoToken.palavra_chave);
-        palavras_simples.put("nao", TipoToken.palavra_chave);
-        palavras_simples.put("nulo", TipoToken.palavra_chave);
-        palavras_simples.put("chave", TipoToken.palavra_chave);
-        palavras_simples.put("primaria", TipoToken.palavra_chave);
-        palavras_simples.put("estrangeira", TipoToken.palavra_chave);
-        palavras_simples.put("alterar", TipoToken.palavra_chave);
-        palavras_simples.put("adicionar", TipoToken.palavra_chave);
-        palavras_simples.put("coluna", TipoToken.palavra_chave);
-        palavras_simples.put("renomear", TipoToken.palavra_chave);
-        palavras_simples.put("restricao", TipoToken.palavra_chave);
-        palavras_simples.put("definir", TipoToken.palavra_chave);
-        palavras_simples.put("remover", TipoToken.palavra_chave);
-        palavras_simples.put("excluir", TipoToken.palavra_chave);
-        palavras_simples.put("mostrar", TipoToken.palavra_chave);
-        palavras_simples.put("esvaziar", TipoToken.palavra_chave);
-        palavras_simples.put("em", TipoToken.palavra_chave);
-        palavras_simples.put("para", TipoToken.palavra_chave);
-        palavras_simples.put("referencia", TipoToken.palavra_chave);
-        palavras_simples.put("unica", TipoToken.palavra_chave);
-        palavras_simples.put("verificar", TipoToken.palavra_chave);
-        palavras_simples.put("banco", TipoToken.palavra_chave);
-        palavras_simples.put("dados", TipoToken.palavra_chave);
-        palavras_simples.put("usar", TipoToken.palavra_chave);
-        palavras_simples.put("caractere", TipoToken.palavra_chave);
-        palavras_simples.put("variavel", TipoToken.palavra_chave);
-        palavras_simples.put("fixo", TipoToken.palavra_chave);
-        palavras_simples.put("distinct", TipoToken.palavra_chave);
-        palavras_simples.put("", TipoToken.palavra_chave);
-        
-        tipo_dados.put("int", TipoToken.tipo_dado);
-        tipo_dados.put("inteiro", TipoToken.tipo_dado);
-        tipo_dados.put("texto", TipoToken.tipo_dado);
-        tipo_dados.put("data", TipoToken.tipo_dado);
-        tipo_dados.put("decimal", TipoToken.tipo_dado);
-        tipo_dados.put("gint", TipoToken.tipo_dado);
-        tipo_dados.put("cint", TipoToken.tipo_dado);
-        tipo_dados.put("mint", TipoToken.tipo_dado);
-        tipo_dados.put("hora", TipoToken.tipo_dado);
-        tipo_dados.put("data_hora", TipoToken.tipo_dado);
-        
-        funcoes_agregadas.put("max", TipoToken.funcao_agregada);
-        funcoes_agregadas.put("min", TipoToken.funcao_agregada);
-        funcoes_agregadas.put("soma", TipoToken.funcao_agregada);
-        funcoes_agregadas.put("med", TipoToken.funcao_agregada);
-        funcoes_agregadas.put("contar", TipoToken.funcao_agregada);
-        
+        // uma unica fonte de verdade: o catalogo usado pelo Lexer e pela IDE
+        for (InfoComandos info : CatalogoComandos.todos()) {
+            switch (info.categoria()) {
+                case PALAVRA_CHAVE ->
+                        palavras_simples.put(info.nome(), info.tipoToken());
+                case TIPO_DADO ->
+                        tipo_dados.put(info.nome(), info.tipoToken());
+                case FUNCAO ->
+                        funcoes_agregadas.put(info.nome(), info.tipoToken());
+                default -> { /* clausulas e comandos nao sao tokens do lexer */ }
+            }
+        }
 
 //        adicionarComposta("ordenar", "por");
 //        adicionarComposta("agrupar", "por");

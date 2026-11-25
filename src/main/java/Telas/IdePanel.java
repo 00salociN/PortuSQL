@@ -20,7 +20,8 @@ import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,6 +47,7 @@ import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -62,21 +64,28 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
 import Conexao.Conexao;
+import Conexao.DiffDer;
+import Conexao.MapaBanco;
+import Engine.CatalogoComandos;
+import PortuSQL.PortuSQL.Atualizador;
+import PortuSQL.PortuSQL.BuildInfo;
 
 /**
  * Tela principal do editor de consultas do PortuSQL: barra de menu,
  * barra de ferramentas (Executar/Execução única/Parar/Salvar/
- * Histórico), navegador de bancos em árvore (com as pastas de tabelas,
- * visões, funções e gatilhos carregadas sob demanda), abas de editor SQL com realce de sintaxe leve,
- * numeração de linha e atalhos (Ctrl+Enter, F5, F6), e painel de
- * resultados/mensagens na parte inferior.
+ * Histórico/DER), navegador de bancos em árvore (com as pastas de tabelas,
+ * visões, funções e gatilhos carregadas sob demanda), abas de editor SQL
+ * com realce de sintaxe e dicas vindas do catálogo único da linguagem,
+ * numeração de linha, atalhos (Ctrl+Enter, F5, F6) e painel de
+ * resultados/mensagens na parte inferior. O painel lateral de DER mostra o
+ * esquema do banco e destaca o que cada comando acabou de alterar.
  *
  * <p>toda a lógica real (executar consulta no motor PortuSQL, salvar
  * arquivo, etc.) fica com o {@link IdePanelListener} -- este painel só
  * monta a interface e repassa o texto do editor ativo para o ouvinte.
  *
  * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.0
+ * @version 1.1.0
  */
 public class IdePanel extends JPanel {
 
@@ -98,20 +107,6 @@ public class IdePanel extends JPanel {
     private static final Color COR_LITERAL = new Color(0x98, 0xC3, 0x79);
     private static final Color COR_NUMERO = new Color(0xD1, 0x9A, 0x66);
 
-    /** palavras reservadas do PortuSQL usadas no realce de sintaxe */
-    private static final Set<String> PALAVRAS_RESERVADAS = Set.of(
-            "criar", "tabela", "selecionar", "de", "onde", "ordenar", "por", "agrupar",
-            "inserir", "em", "valores", "atualizar", "definir", "deletar", "apagar",
-            "e", "ou", "nao", "nulo", "chave", "primaria", "estrangeira", "alterar",
-            "adicionar", "coluna", "renomear", "restricao", "remover", "excluir",
-            "mostrar", "esvaziar", "para", "referencia", "usar", "banco", "dados",
-            "verificar", "caractere", "fixo", "variavel");
-
-    /** tipos de dado do PortuSQL usados no realce de sintaxe */
-    private static final Set<String> TIPOS_DADO = Set.of(
-            "inteiro", "int", "texto", "data", "decimal", "flutuante", "booleano",
-            "hora", "data_hora", "binario", "enum", "enumerar", "real", "numerico");
-
     /** texto entre aspas, numeros e palavras (usados no realce) */
     private static final Pattern PADRAO_TOKENS = Pattern.compile(
             "'[^']*'|\\b\\d+\\.?\\d*\\b|\\b\\p{L}[\\p{L}\\d_]*\\b");
@@ -129,6 +124,19 @@ public class IdePanel extends JPanel {
     private JTree arvore;
     private JLabel statusEsquerda;
     private JLabel statusDireita;
+
+    /** area que fica a esquerda do DER (sidebar + navegador + editor) */
+    private JPanel areaComSidebar;
+    /** divisor entre a IDE e o painel lateral de DER */
+    private JSplitPane splitDer;
+    /** painel lateral de DER, criado sob demanda */
+    private DockDer dockDer;
+    /** ultima posicao do divisor, para reabrir o DER como antes */
+    private int ultimaPosicaoDivisorDer = -1;
+    /** evita atualizar o DER no meio da execao de um comando */
+    private boolean executandoComandoDer;
+    /** diferenca de esquema destacada no DER apos a ultima execucao */
+    private DiffDer ultimoDiffDer;
 
     /** contador usado para nomear os arquivos novos do menu Arquivo */
     private int proximoArquivo = 1;
@@ -153,7 +161,7 @@ public class IdePanel extends JPanel {
         topo.add(criarMenuBar(), BorderLayout.NORTH);
         topo.add(criarBarraFerramentas(), BorderLayout.SOUTH);
 
-        JPanel areaComSidebar = new JPanel(new BorderLayout());
+        areaComSidebar = new JPanel(new BorderLayout());
         areaComSidebar.add(new Sidebar(listener, Sidebar.IconeAtivo.BANCOS), BorderLayout.WEST);
         areaComSidebar.add(criarAreaPrincipal(), BorderLayout.CENTER);
 
@@ -265,6 +273,7 @@ public class IdePanel extends JPanel {
     private JMenu criarMenuFerramentas() {
         JMenu menu = novoMenu("Ferramentas");
         menu.add(itemMenu("Abrir pasta dos bancos", null, this::abrirPastaBancos));
+        menu.add(itemMenu("DER (painel lateral)", null, this::alternarDer));
         menu.addSeparator();
         menu.add(itemMenu("Configurações...", null,
                 () -> mostrarAviso("Configurações em construção.")));
@@ -274,6 +283,7 @@ public class IdePanel extends JPanel {
     private JMenu criarMenuAjuda() {
         JMenu menu = novoMenu("Ajuda");
         menu.add(itemMenu("Atalhos de teclado", null, this::mostrarAtalhos));
+        menu.add(itemMenu("Verificar atualizações", null, this::verificarAtualizacoes));
         menu.addSeparator();
         menu.add(itemMenu("Comandos (GitHub)", null,
                 () -> abrirGitHub(URL_GITHUB)));
@@ -409,6 +419,127 @@ public class IdePanel extends JPanel {
         }
     }
 
+    /** abre ou fecha o painel lateral de DER */
+    private void alternarDer() {
+        if (dockDer == null) {
+            abrirDer();
+        } else {
+            fecharDer();
+        }
+    }
+
+    /** mostra o DER do banco atual ao lado da IDE */
+    private void abrirDer() {
+        if (dockDer != null) {
+            dockDer.atualizar();
+            return;
+        }
+
+        String banco = Conexao.getNomeBancoAtual();
+        DiffDer destaqueAnterior = ultimoDiffDer;
+        dockDer = new DockDer(banco, this::fecharDer, diff -> ultimoDiffDer = diff);
+        if (destaqueAnterior == null
+                || (banco != null && !banco.equalsIgnoreCase(destaqueAnterior.atual().banco()))) {
+            destaqueAnterior = null;
+        }
+        ultimoDiffDer = destaqueAnterior;
+        if (destaqueAnterior != null) {
+            dockDer.aplicarDestaque(destaqueAnterior);
+        }
+
+        splitDer = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, areaComSidebar, dockDer);
+        splitDer.setBorder(null);
+        splitDer.setBackground(COR_FUNDO_PRINCIPAL);
+        splitDer.setResizeWeight(1.0);
+        splitDer.setOneTouchExpandable(true);
+        splitDer.setDividerSize(8);
+        remove(areaComSidebar);
+        add(splitDer, BorderLayout.CENTER);
+        revalidate();
+        repaint();
+
+        JSplitPane divisor = splitDer;
+        SwingUtilities.invokeLater(() -> {
+            if (divisor != splitDer || splitDer == null) {
+                return;
+            }
+            if (ultimaPosicaoDivisorDer > 0) {
+                splitDer.setDividerLocation(ultimaPosicaoDivisorDer);
+            } else {
+                splitDer.setDividerLocation(0.72);
+            }
+        });
+    }
+
+    /** remove o painel de DER e devolve a IDE largura total */
+    private void fecharDer() {
+        if (dockDer == null) {
+            return;
+        }
+        if (splitDer != null) {
+            ultimaPosicaoDivisorDer = splitDer.getDividerLocation();
+        }
+        remove(splitDer);
+        add(areaComSidebar, BorderLayout.CENTER);
+        splitDer = null;
+        dockDer = null;
+        revalidate();
+        repaint();
+    }
+
+    /** recarrega o DER aberto quando o banco em uso mudou */
+    private void atualizarDerSeAberto() {
+        if (executandoComandoDer) {
+            return;
+        }
+        if (dockDer != null) {
+            dockDer.trocarBanco(Conexao.getNomeBancoAtual());
+            dockDer.atualizar();
+        }
+    }
+
+    /** consulta o manifesto sem travar a interface e mostra o resultado */
+    private void verificarAtualizacoes() {
+        new SwingWorker<Optional<Atualizador.InfoVersao>, Void>() {
+            @Override
+            protected Optional<Atualizador.InfoVersao> doInBackground() {
+                return Atualizador.verificar();
+            }
+
+            @Override
+            protected void done() {
+                Optional<Atualizador.InfoVersao> disponivel;
+                try {
+                    disponivel = get();
+                } catch (Exception erro) {
+                    disponivel = Optional.empty();
+                }
+
+                if (disponivel.isEmpty()) {
+                    mostrarAviso("Você já está usando a versão mais recente disponível."
+                            + "\n\nVersão instalada: " + BuildInfo.versao());
+                    return;
+                }
+
+                Atualizador.InfoVersao info = disponivel.get();
+                StringBuilder texto = new StringBuilder("PortuSQL ")
+                        .append(info.versao()).append(" disponível.\n\nVersão instalada: ")
+                        .append(BuildInfo.versao());
+                if (!info.data().isBlank()) {
+                    texto.append("\nPublicada em: ").append(info.data());
+                }
+                texto.append("\n\nDeseja abrir as notas da nova versão?");
+
+                int escolha = JOptionPane.showConfirmDialog(IdePanel.this,
+                        texto.toString(), "Atualização disponível",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                if (escolha == JOptionPane.YES_OPTION) {
+                    Atualizador.abrirNotas(info);
+                }
+            }
+        }.execute();
+    }
+
     private void abrirGitHub(String url) {
         if (!Desktop.isDesktopSupported()) {
             mostrarAviso("Não foi possível abrir o navegador.\nAcesse: " + url);
@@ -437,7 +568,7 @@ public class IdePanel extends JPanel {
     }
 
     private void mostrarSobre() {
-        String texto = "PortuSQL 1.0\n\n"
+        String texto = "PortuSQL " + BuildInfo.versao() + "\n\n"
                 + "Uma ferramenta para estudantes que traz a sintaxe SQL "
                 + "para perto do português.\n\n"
                 + "Autor: Nicolas Gabriel Venâncio dos Santos\n"
@@ -475,6 +606,7 @@ public class IdePanel extends JPanel {
                 () -> disparar(listener != null ? listener::aoSalvar : null)));
         botoesEsquerda.add(criarBotaoBarra("\u23F1 Hist\u00f3rico", COR_TEXTO,
                 () -> disparar(listener != null ? listener::aoAbrirHistorico : null)));
+        botoesEsquerda.add(criarBotaoBarra("\u25A6 DER", COR_AZUL, this::alternarDer));
 
         String nomeBancoAtual = Conexao.getNomeBancoAtual();
         JLabel statusConexao = new JLabel("\u25CF " + (nomeBancoAtual != null ? nomeBancoAtual : "sem banco"));
@@ -587,6 +719,7 @@ public class IdePanel extends JPanel {
     /** recarrega a lista de bancos (usado apos criar/excluir um banco) */
     public void recarregarNavegador() {
         montarArvore();
+        atualizarDerSeAberto();
     }
 
     private void montarArvore() {
@@ -743,7 +876,7 @@ public class IdePanel extends JPanel {
         JPanel painel = new JPanel(new BorderLayout());
         painel.setBackground(COR_FUNDO_EDITOR);
 
-        JTextPane editor = new JTextPane();
+        EditorComDica editor = new EditorComDica();
         editor.setText(textoInicial);
         editor.setBackground(COR_FUNDO_EDITOR);
         editor.setForeground(COR_TEXTO);
@@ -847,10 +980,50 @@ public class IdePanel extends JPanel {
             return;
         }
         String sql = somenteLinha ? linhaNoCursor(editor) : editor.getText();
-        if (somenteLinha) {
-            disparar(listener != null ? () -> listener.aoExecutarUnica(sql) : null);
-        } else {
-            disparar(listener != null ? () -> listener.aoExecutar(sql) : null);
+
+        // se o DER estiver aberto, guarda o esquema antes para destacar depois
+        // o que este comando criou, removeu ou modificou
+        String bancoDer = dockDer == null ? null : dockDer.getBanco();
+        MapaBanco antes = null;
+        boolean podeComparar = bancoDer != null;
+        if (podeComparar) {
+            try {
+                antes = MapaBanco.ler(bancoDer);
+            } catch (SQLException erro) {
+                podeComparar = false;
+            }
+        }
+
+        executandoComandoDer = podeComparar;
+        try {
+            if (somenteLinha) {
+                disparar(listener != null ? () -> listener.aoExecutarUnica(sql) : null);
+            } else {
+                disparar(listener != null ? () -> listener.aoExecutar(sql) : null);
+            }
+        } finally {
+            executandoComandoDer = false;
+        }
+
+        if (!podeComparar || antes == null || dockDer == null) {
+            return;
+        }
+        if (areaMensagens.getText().startsWith("ERRO")) {
+            return;
+        }
+        try {
+            MapaBanco depois = MapaBanco.ler(bancoDer);
+            if (!Objects.equals(bancoDer, depois.banco())) {
+                return;
+            }
+            DiffDer diff = DiffDer.entre(antes, depois);
+            if (!diff.vazio()) {
+                ultimoDiffDer = diff;
+                dockDer.aplicarDestaque(diff);
+            }
+        } catch (SQLException erro) {
+            ultimoDiffDer = null;
+            dockDer.aplicarDestaque(null);
         }
     }
 
@@ -920,9 +1093,9 @@ public class IdePanel extends JPanel {
                     estilo = "numero";
                 } else {
                     String baixo = token.toLowerCase();
-                    if (TIPOS_DADO.contains(baixo)) {
+                    if (CatalogoComandos.tiposDestaqueIDE().contains(baixo)) {
                         estilo = "tipo";
-                    } else if (PALAVRAS_RESERVADAS.contains(baixo)) {
+                    } else if (CatalogoComandos.destaquesIDE().contains(baixo)) {
                         estilo = "palavra";
                     } else {
                         estilo = "normal";

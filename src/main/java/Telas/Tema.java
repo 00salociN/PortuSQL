@@ -19,7 +19,7 @@ import javax.swing.UIManager;
  * janela (geralmente no main da aplicacao).
  *
  * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.0
+ * @version 1.0.0
  */
 public final class Tema {
 

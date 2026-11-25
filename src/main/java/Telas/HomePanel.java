@@ -32,7 +32,7 @@ import javax.swing.border.EmptyBorder;
  * fazer (normalmente, trocar o card ativo de um CardLayout).
  *
  * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.0
+ * @version 1.0.0
  */
 public class HomePanel extends JPanel {
 

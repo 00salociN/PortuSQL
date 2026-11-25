@@ -21,7 +21,7 @@ import java.util.List;
  * {@link ErroLexer}.
  *
  * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.0
+ * @version 1.0.0
  * @see Token
  * @see TipoToken
  * @see KW
