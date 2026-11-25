@@ -2,6 +2,13 @@
 
 Este arquivo resume o que mudou em cada versão do PortuSQL. A descrição pública de cada lançamento fica nas [notas das releases](https://github.com/00salociN/PortuSQL/releases) e, quando aplicável, em `.github/release-notes/`.
 
+## [1.1.1]
+
+### Adicionado
+
+- Comentários de linha (`--`) e de bloco (`/* ... */`) na linguagem, ignorados pelo lexer e realçados no editor.
+- Reconsulta automática de atualizações enquanto a IDE permanece aberta, sem precisar clicar no menu nem reiniciar.
+
 ## [1.1.0]
 
 Atualização da 1.0.0 focada em acompanhamento de versões e experiência da IDE. A linguagem e os bancos H2 existentes continuam compatíveis: não é preciso recriar nem converter nada.

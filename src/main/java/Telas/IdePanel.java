@@ -85,7 +85,7 @@ import PortuSQL.PortuSQL.BuildInfo;
  * monta a interface e repassa o texto do editor ativo para o ouvinte.
  *
  * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.1.0
+ * @version 1.1.1
  */
 public class IdePanel extends JPanel {
 
@@ -106,10 +106,12 @@ public class IdePanel extends JPanel {
     private static final Color COR_TIPO_DADO = new Color(0x4F, 0xC1, 0xFF);
     private static final Color COR_LITERAL = new Color(0x98, 0xC3, 0x79);
     private static final Color COR_NUMERO = new Color(0xD1, 0x9A, 0x66);
+    private static final Color COR_COMENTARIO = new Color(0x6E, 0x8C, 0x5E);
 
-    /** texto entre aspas, numeros e palavras (usados no realce) */
+    /** comentarios, texto entre aspas, numeros e palavras (usados no realce) */
     private static final Pattern PADRAO_TOKENS = Pattern.compile(
-            "'[^']*'|\\b\\d+\\.?\\d*\\b|\\b\\p{L}[\\p{L}\\d_]*\\b");
+            "'[^']*'|/\\*.*?\\*/|--[^\\r\\n]*|\\b\\d+\\.?\\d*\\b|\\b\\p{L}[\\p{L}\\d_]*\\b",
+            Pattern.DOTALL);
 
     /** paginas do GitHub abertas pelo menu Ajuda */
     private static final String URL_GITHUB = "https://github.com/00salociN/PortuSQL";
@@ -1076,6 +1078,10 @@ public class IdePanel extends JPanel {
 
         Style numero = doc.addStyle("numero", null);
         StyleConstants.setForeground(numero, COR_NUMERO);
+
+        Style comentario = doc.addStyle("comentario", null);
+        StyleConstants.setForeground(comentario, COR_COMENTARIO);
+        StyleConstants.setItalic(comentario, true);
     }
 
     private void aplicarRealce(StyledDocument doc) {
@@ -1087,7 +1093,9 @@ public class IdePanel extends JPanel {
                 String token = m.group();
                 String estilo;
                 char primeiro = token.charAt(0);
-                if (primeiro == '\'') {
+                if (token.startsWith("--") || token.startsWith("/*")) {
+                    estilo = "comentario";
+                } else if (primeiro == '\'') {
                     estilo = "texto";
                 } else if (Character.isDigit(primeiro)) {
                     estilo = "numero";

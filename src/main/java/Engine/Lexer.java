@@ -10,6 +10,10 @@ import java.util.List;
  * {@link Token}, identificando palavras-chave, tipos de dado, identificadores,
  * numeros, textos, operadores e pontuacao.
  *
+ * <p>comentarios de linha ({@code --}) e de bloco (delimitadores de abertura
+ * e fechamento formados por barra e asterisco) sao ignorados e nao geram
+ * tokens. Marcadores dentro de textos entre aspas nao iniciam comentarios.
+ *
  * <p>o processo acontece em duas varreduras:
  * <ol>
  *     <li>{@link #primeiraVarredura()} separa os tokens simples;</li>
@@ -21,7 +25,7 @@ import java.util.List;
  * {@link ErroLexer}.
  *
  * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.0.0
+ * @version 1.1.1
  * @see Token
  * @see TipoToken
  * @see KW
@@ -78,6 +82,16 @@ public class Lexer {
 
             int inicioLinha = linha;
             int inicioColuna = coluna;
+
+            if (atual == '-' && caracterSeguinte() == '-') {
+                pularComentarioLinha();
+                continue;
+            }
+
+            if (atual == '/' && caracterSeguinte() == '*') {
+                pularComentarioBloco(inicioLinha, inicioColuna);
+                continue;
+            }
 
             if (Character.isDigit(atual)) {
                 tokens.add(ProcessarNumero(inicioLinha, inicioColuna));
@@ -317,6 +331,55 @@ public class Lexer {
         }
 
         return resultado;
+    }
+
+    /**
+     * devolve o caractere seguinte ao da posicao atual
+     * @return caractere seguinte, ou {@code '\0'} se a leitura chegou ao fim
+     */
+    private char caracterSeguinte() {
+        return posicao + 1 < codigo.length() ? codigo.charAt(posicao + 1) : '\0';
+    }
+
+    /**
+     * descarta um comentario de linha, da abertura {@code --} ate a quebra
+     * de linha seguinte (ou ate o fim da entrada)
+     */
+    private void pularComentarioLinha() {
+        while (!fimEntrada() && caracterAtual() != '\n') {
+            avancar();
+        }
+    }
+
+    /**
+     * descarta um comentario de bloco, da abertura com barra e asterisco ate
+     * o par asterisco e barra seguinte
+     * @param linhaAbertura linha onde o comentario comeca
+     * @param colunaAbertura coluna onde o comentario comeca
+     * @throws ErroLexer se o comentario nao for fechado
+     */
+    private void pularComentarioBloco(int linhaAbertura, int colunaAbertura) {
+        avancar(); // '/'
+        avancar(); // '*'
+
+        while (!fimEntrada()) {
+            char atual = caracterAtual();
+            if (atual == '*' && caracterSeguinte() == '/') {
+                avancar();
+                avancar();
+                return;
+            }
+            if (atual == '\n') {
+                avancar();
+                linha++;
+                coluna = 1;
+            } else {
+                avancar();
+            }
+        }
+
+        throw new ErroLexer("Comentário de bloco não foi fechado",
+                linhaAbertura, colunaAbertura);
     }
 
     /**

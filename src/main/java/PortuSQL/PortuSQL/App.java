@@ -1,5 +1,7 @@
 package PortuSQL.PortuSQL;
 
+import java.util.function.Consumer;
+
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
@@ -14,10 +16,11 @@ import Telas.FramePortuSQL;
  * PortuSQL e executa com F5 ou Ctrl+Enter.
  *
  * <p>a verificacao de atualizacoes roda em segundo plano e nunca impede a
- * abertura do programa.
+ * abertura do programa. Enquanto a janela fica aberta, a consulta se repete
+ * periodicamente.
  *
  * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.1.0
+ * @version 1.1.1
  */
 public class App {
 
@@ -26,12 +29,15 @@ public class App {
      * @param args argumentos recebidos na inicializacao
      */
     public static void main(String[] args) {
-        Atualizador.verificarEmSegundoPlano(info ->
+        Consumer<Atualizador.InfoVersao> aviso = info ->
                 SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(
                         null,
                         "PortuSQL " + info.versao() + " disponível.\n\nNotas: " + info.notas(),
                         "Atualização disponível",
-                        JOptionPane.INFORMATION_MESSAGE)));
+                        JOptionPane.INFORMATION_MESSAGE));
+
+        Atualizador.verificarEmSegundoPlano(aviso);
+        Atualizador.verificarEnquantoAberto(aviso);
 
         SwingUtilities.invokeLater(() -> new FramePortuSQL().setVisible(true));
     }

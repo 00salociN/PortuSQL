@@ -141,7 +141,16 @@ linha/coluna em relatórios de erro.
 
 ### 6.2 Comentários
 
-A linguagem **não define** comentários no estágio atual.
+Comentários são trechos ignorados pelo Lexer: não produzem tokens e podem
+aparecer em qualquer posição entre tokens.
+
+- **Comentário de linha:** começa com `--` e termina na quebra de linha
+  seguinte (ou no fim da entrada).
+- **Comentário de bloco:** começa com `/*` e termina no primeiro `*/` seguinte;
+  pode conter quebras de linha e não é aninhável.
+
+Os marcadores só iniciam comentários fora de literais de texto. Um bloco sem
+fechamento é erro léxico, reportado na posição em que foi aberto.
 
 ### 6.3 Tokens
 
@@ -635,6 +644,7 @@ Ocorre durante a etapa *Lexer* quando:
 - um caractere não reconhecido é encontrado;
 - um literal numérico é mal formado;
 - um literal de texto não é fechado;
+- um comentário de bloco não é fechado;
 - uma barra vertical isolada é encontrada.
 
 O erro reporta a posição (linha e coluna) e uma mensagem descritiva.

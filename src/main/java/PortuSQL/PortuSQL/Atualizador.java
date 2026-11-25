@@ -16,7 +16,10 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+
+import javax.swing.Timer;
 
 /**
  * verificador de atualizacoes do PortuSQL.
@@ -26,11 +29,12 @@ import java.util.function.Consumer;
  * consulta acontece em segundo plano e falhas de rede sao silenciosas -- abrir
  * o programa nunca pode depender de internet.
  *
- * <p>Esta etapa apenas avisa e abre as notas. A substituicao automatica do
- * arquivo (com conferencia de checksum) ficara para uma versao futura.
+ * <p>alem da consulta na abertura, {@link #verificarEnquantoAberto(Consumer)}
+ * repete a verificacao enquanto a IDE permanece aberta. Esta etapa apenas
+ * avisa e abre as notas: nao ha substituicao automatica do arquivo.
  *
  * @author Nicolas Gabriel Venâncio dos Santos
- * @version 1.1.0
+ * @version 1.1.1
  */
 public final class Atualizador {
 
@@ -42,6 +46,12 @@ public final class Atualizador {
     /** arquivo local que guarda a ultima versao avisada ao usuario */
     private static final Path AVISOS = Paths.get(
             System.getProperty("user.home"), ".portusql", "atualizacoes.properties");
+    /** intervalo padrao entre consultas enquanto a IDE esta aberta */
+    private static final int INTERVALO_PADRAO_MS = 5 * 60 * 1000;
+    /** evita consultas sobrepostas entre a verificacao inicial e a periodica */
+    private static final AtomicBoolean CONSULTA_EM_ANDAMENTO = new AtomicBoolean(false);
+    /** mantido em campo estatico para o timer nao ser coletado */
+    private static Timer timerAtualizacoes;
 
     private Atualizador() {
     }
@@ -61,7 +71,7 @@ public final class Atualizador {
             HttpClient cliente = HttpClient.newBuilder()
                     .connectTimeout(Duration.ofSeconds(3))
                     .build();
-            HttpRequest pedido = HttpRequest.newBuilder(URI.create(MANIFESTO))
+            HttpRequest pedido = HttpRequest.newBuilder(URI.create(manifesto()))
                     .timeout(Duration.ofSeconds(5))
                     .GET()
                     .build();
@@ -97,6 +107,9 @@ public final class Atualizador {
      * @param aviso callback executado quando ha versao nova (pode ser nulo)
      */
     public static void verificarEmSegundoPlano(Consumer<InfoVersao> aviso) {
+        if (!CONSULTA_EM_ANDAMENTO.compareAndSet(false, true)) {
+            return;
+        }
         Thread consulta = new Thread(() -> {
             try {
                 InfoVersao info = verificar().orElse(null);
@@ -105,10 +118,31 @@ public final class Atualizador {
                 }
             } catch (Exception ignorado) {
                 // nunca derrubar a aplicacao por causa de atualizacao
+            } finally {
+                CONSULTA_EM_ANDAMENTO.set(false);
             }
         }, "portusql-atualizador");
         consulta.setDaemon(true);
         consulta.start();
+    }
+
+    /**
+     * repete a verificacao enquanto a IDE esta aberta, sem travar a interface.
+     * O aviso continua aparecendo apenas uma vez por versao. Para testes e
+     * demonstracoes, o intervalo pode ser ajustado pela propriedade
+     * {@code portusql.atualizacoes.intervalo} (milissegundos) e o endereco do
+     * manifesto por {@code portusql.atualizacoes.manifesto}.
+     *
+     * @param aviso callback executado quando ha versao nova
+     */
+    public static void verificarEnquantoAberto(Consumer<InfoVersao> aviso) {
+        if (timerAtualizacoes != null) {
+            return;
+        }
+        int intervalo = Math.max(1000,
+                Integer.getInteger("portusql.atualizacoes.intervalo", INTERVALO_PADRAO_MS));
+        timerAtualizacoes = new Timer(intervalo, evento -> verificarEmSegundoPlano(aviso));
+        timerAtualizacoes.start();
     }
 
     /**
@@ -173,6 +207,11 @@ public final class Atualizador {
             }
         }
         return false;
+    }
+
+    /** endereco do manifesto, substituivel em testes e demonstracoes */
+    private static String manifesto() {
+        return System.getProperty("portusql.atualizacoes.manifesto", MANIFESTO);
     }
 
     private static boolean versaoValida(String texto) {

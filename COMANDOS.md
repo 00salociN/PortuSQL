@@ -7,6 +7,7 @@
 
 - [Como ler este guia](#como-ler-este-guia)
 - [Visão geral](#visão-geral)
+- [Comentários](#comentários)
 - [Comandos de definição de dados (DDL)](#comandos-de-definição-de-dados-ddl)
   - [CRIAR TABELA](#1-criar-tabela)
   - [ALTERAR TABELA — ADICIONAR COLUNA](#2-alterar-tabela--adicionar-coluna)
@@ -67,6 +68,17 @@ Lexer → Parser → Tradutor → Executor
 4. **Executor** — roda o SQL e devolve o resultado (grade de consulta ou linhas afetadas).
 
 Comandos que o Parser entende mas que ainda **não têm tradução** (como `USAR BANCO DE DADOS`) são reconhecidos, porém geram erro na etapa de tradução.
+
+## Comentários
+
+Use `--` para comentar até o fim da linha e `/* ... */` para comentar um trecho, que pode ocupar várias linhas. Comentários são ignorados na execução; `--` e `/*` dentro de texto entre aspas não iniciam comentário.
+
+```
+-- alunos com mais de 18 anos
+selecionar nome, idade de alunos /* só maiores de idade */ onde idade >= 18
+```
+
+Um comentário de bloco precisa ser fechado; se faltar o `*/`, o editor aponta o erro na abertura.
 
 ---
 

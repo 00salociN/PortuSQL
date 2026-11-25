@@ -7,7 +7,6 @@ Este arquivo descreve o estado atual do PortuSQL. Funcionalidades planejadas fic
 | Situação | Como contornar |
 |---|---|
 | Não há `JOIN`, `HAVING` nem subconsultas | usar consultas de uma única tabela, com `ONDE` e `AGRUPAR POR` |
-| Não há comentários na linguagem | manter as explicações fora do comando |
 | H2 é o único banco de destino | usar o banco embarcado; suporte a outros bancos está planejado, mas ainda não existe |
 
 ## Recursos parcialmente implementados
