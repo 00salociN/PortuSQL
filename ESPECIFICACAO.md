@@ -18,9 +18,14 @@ comportamento do implemento de referência (o motor `Lexer → Parser → Tradut
 Executor`), permitindo que implementações alternativas sejam construídas e
 verificadas.
 
-Esta especificação **não** descreve a interface gráfica (IDE), a configuração de
-banco de dados nem os detalhes de conexão. Ela trata exclusivamente da
+Esta especificação **não** descreve a interface gráfica (IDE), a configuração
+de banco de dados nem os detalhes de conexão. Ela trata exclusivamente da
 linguagem.
+
+O `;` usado para encerrar comandos é uma conveniência da interface, não parte da
+gramática descrita aqui. O texto submetido ao `Interpretador` percorre
+`Lexer → Parser → Tradutor → Executor`, e o `Tradutor` é responsável por
+acrescentar o `;` ao SQL final.
 
 ---
 

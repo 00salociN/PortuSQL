@@ -655,8 +655,8 @@ Tipos reconhecidos pelo analisador (podem ser usados no `CRIAR TABELA` e em colu
 | `decimal` | `decimal` | número decimal (precisão definida pelo banco) |
 | `hora` | `time` | hora |
 | `data_hora` | `timestamp` | data e hora juntas |
-| `CARACTERE VARIAVEL(n)` | `varchar(n)` | texto com limite de tamanho |
-| `CARACTERE FIXO(n)` | `char(n)` | texto de tamanho fixo |
+| `CARACTERE VARIAVEL(n)` / `TEXTO VARIAVEL(n)` | `varchar(n)` | texto com limite de tamanho |
+| `CARACTERE FIXO(n)` / `TEXTO FIXO(n)` | `char(n)` | texto de tamanho fixo |
 | `gint`, `cint`, `mint` | — | reconhecidos como tipo, mas **sem tradução** no H2 (erro na tradução) |
 
 Outros nomes (`flutuante`, `booleano`, `binario`, `enum`, `real`, `numerico`) existem no dicionário do Tradutor, mas o Lexer ainda não os reconhece como tipo de dado — na prática eles são tratados como identificadores.
