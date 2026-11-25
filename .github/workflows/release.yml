@@ -141,8 +141,9 @@ jobs:
         run: |
           $version = ([xml](Get-Content pom.xml)).project.version
           Write-Host "Versao do projeto: $version"
+          # java.net.http e exigido pelo verificador de atualizacoes (HttpClient).
           jlink `
-            --add-modules java.base,java.desktop,java.sql,java.logging `
+            --add-modules java.base,java.desktop,java.sql,java.logging,java.net.http `
             --strip-debug --no-header-files --no-man-pages --compress=2 `
             --output runtime
           Write-Host ("Runtime: {0} MB" -f [math]::Round((Get-ChildItem runtime -Recurse | Measure-Object Length -Sum).Sum / 1MB))
